@@ -33,8 +33,8 @@ const STATUS_BADGES = {
   repasar: "bg-amber-100 text-amber-700 dark:bg-amber-500/20 dark:text-amber-200",
 };
 
-function getStorageKey(subject, level) {
-  return `${CHAT_STORAGE_PREFIX}:${subject}:${level}`;
+function getStorageKey(subject, grade, mode) {
+  return `${CHAT_STORAGE_PREFIX}:${subject}:${grade}:${mode}`;
 }
 
 function getDefaultState() {
@@ -75,8 +75,11 @@ function readStoredChat(storageKey) {
   }
 }
 
-export default function Chat({ subject, level }) {
-  const storageKey = useMemo(() => getStorageKey(subject, level), [subject, level]);
+export default function Chat({ subject, grade, mode, studentProfile }) {
+  const storageKey = useMemo(
+    () => getStorageKey(subject, grade, mode),
+    [subject, grade, mode]
+  );
   const storedState = useMemo(() => readStoredChat(storageKey), [storageKey]);
   const [messages, setMessages] = useState(storedState.messages);
   const [input, setInput] = useState("");
@@ -94,11 +97,14 @@ export default function Chat({ subject, level }) {
     storedState.quiz?.length ? "quiz" : "exercises"
   );
   const scrollRef = useRef(null);
-  const subjectMeta = useMemo(() => getSubjectByName(subject), [subject]);
+  const subjectMeta = useMemo(() => getSubjectByName(subject, grade), [grade, subject]);
   const subjectTopics = subjectMeta?.topics || [];
+  const gradeLabel = studentProfile?.grade?.longLabel || "este grado";
+  const modeName = studentProfile?.mode?.name || "Facil";
+  const modeSummary = studentProfile?.mode?.summary || "";
 
   const inferredTopic = useMemo(() => {
-    const fromInput = findTopicMatch(subject, input);
+    const fromInput = findTopicMatch(subject, input, grade);
     if (fromInput) {
       return fromInput;
     }
@@ -108,8 +114,8 @@ export default function Chat({ subject, level }) {
       .find((message) => message.role === "user")
       ?.content;
 
-    return findTopicMatch(subject, latestUserQuestion || "");
-  }, [input, messages, subject]);
+    return findTopicMatch(subject, latestUserQuestion || "", grade);
+  }, [grade, input, messages, subject]);
 
   const activeTopic = selectedTopic || inferredTopic || subjectTopics[0] || "";
   const { updateTopic, getTopicStatus } = useProgress();
@@ -128,30 +134,35 @@ export default function Chat({ subject, level }) {
     const focus = activeTopic || subject;
 
     return [
-      `Explicame ${focus} de forma facil.`,
-      `Dame un ejemplo corto de ${focus}.`,
-      `Hazme una pregunta corta de ${focus}.`,
+      `Explicame ${focus} para ${gradeLabel} en modo ${modeName.toLowerCase()}.`,
+      `Dame un ejemplo corto de ${focus} para ${gradeLabel}.`,
+      mode === "easy"
+        ? `Hazme una pregunta facil de ${focus}.`
+        : `Hazme una pregunta retadora de ${focus}.`,
     ];
-  }, [activeTopic, subject]);
+  }, [activeTopic, gradeLabel, mode, modeName, subject]);
 
   const followUpActions = useMemo(() => {
     const focus = activeTopic || subject;
 
     return [
       {
-        label: "Mas facil",
-        prompt: `Explicamelo mas facil, como para 11 anos, sobre ${focus}.`,
+        label: mode === "easy" ? "Mas simple" : "Mas claro",
+        prompt: `Explicamelo mejor para ${gradeLabel}, sobre ${focus}, con lenguaje mas simple.`,
       },
       {
         label: "Otro ejemplo",
-        prompt: `Dame otro ejemplo corto de ${focus}.`,
+        prompt: `Dame otro ejemplo corto de ${focus} para ${gradeLabel}.`,
       },
       {
-        label: "Mini reto",
-        prompt: `Ponme un mini reto de una sola pregunta sobre ${focus}.`,
+        label: mode === "easy" ? "Mini reto" : "Sube reto",
+        prompt:
+          mode === "easy"
+            ? `Ponme un mini reto de una sola pregunta sobre ${focus} para ${gradeLabel}.`
+            : `Ponme una sola pregunta un poco mas dificil sobre ${focus} para ${gradeLabel}.`,
       },
     ];
-  }, [activeTopic, subject]);
+  }, [activeTopic, gradeLabel, mode, subject]);
 
   useEffect(() => {
     if (typeof window === "undefined") {
@@ -229,7 +240,7 @@ export default function Chat({ subject, level }) {
       return;
     }
 
-    const detectedTopic = findTopicMatch(subject, textToSend);
+    const detectedTopic = findTopicMatch(subject, textToSend, grade);
     const topicForTurn = selectedTopic || detectedTopic || activeTopic;
     const userMessage = { role: "user", content: textToSend };
     const newMessages = [...messages, userMessage];
@@ -251,8 +262,10 @@ export default function Chat({ subject, level }) {
     const response = await sendMessage({
       messages: newMessages,
       subject,
-      level,
+      grade,
+      mode,
       topic: topicForTurn,
+      studentProfile,
     });
 
     if (response) {
@@ -286,7 +299,9 @@ export default function Chat({ subject, level }) {
     const generatedExercises = await generateExercises({
       subject,
       topic: topicForTurn,
-      level,
+      grade,
+      mode,
+      studentProfile,
     });
 
     setExercises(generatedExercises);
@@ -308,7 +323,9 @@ export default function Chat({ subject, level }) {
     const generatedQuiz = await generateQuiz({
       subject,
       topic: topicForTurn,
-      level,
+      grade,
+      mode,
+      studentProfile,
     });
 
     setQuiz(generatedQuiz);
@@ -360,7 +377,10 @@ export default function Chat({ subject, level }) {
                 {subject}
               </span>
               <span className="inline-flex items-center gap-2 rounded-full px-3 py-1 text-xs font-semibold ios-chip">
-                Nivel {level}
+                {gradeLabel}
+              </span>
+              <span className="inline-flex items-center gap-2 rounded-full px-3 py-1 text-xs font-semibold ios-chip">
+                Modo {modeName}
               </span>
               <span
                 className={`rounded-full px-3 py-1 text-xs font-semibold ${
@@ -456,9 +476,9 @@ export default function Chat({ subject, level }) {
                     <div className="inline-flex h-10 w-10 items-center justify-center rounded-full bg-white text-[color:var(--accent)] shadow-sm dark:bg-slate-900">
                       <MessageSquare className="h-5 w-5" />
                     </div>
-                    <h3 className="mt-3 text-lg font-bold">Pregunta y avanza</h3>
+                    <h3 className="mt-3 text-lg font-bold">Listo para {gradeLabel}</h3>
                     <p className="mt-1 text-sm leading-6 text-[color:var(--text-secondary)]">
-                      Respondo corto, claro y con ejemplos faciles de entender.
+                      {modeSummary || "Respondo corto, claro y adaptado al estudiante."}
                     </p>
                   </div>
 
@@ -503,7 +523,7 @@ export default function Chat({ subject, level }) {
                 value={input}
                 onChange={(e) => setInput(e.target.value)}
                 onKeyDown={handleKeyDown}
-                placeholder={`Preguntame algo de ${activeTopic || subject}...`}
+                placeholder={`Preguntame algo de ${activeTopic || subject} para ${gradeLabel}...`}
                 rows={2}
                 className="ios-input min-h-[54px] flex-1 resize-none rounded-[20px] px-4 py-3 text-sm leading-6 focus:border-sky-300 focus:outline-none focus:ring-2 focus:ring-sky-200 dark:focus:ring-sky-500/30"
               />
@@ -618,7 +638,8 @@ export default function Chat({ subject, level }) {
                     <div className="ios-surface-muted rounded-lg px-4 py-3">
                       <p className="text-sm font-semibold">{exerciseTopic}</p>
                       <p className="mt-1 text-xs text-[color:var(--text-secondary)]">
-                        Practica una idea a la vez y usa las pistas solo cuando haga falta.
+                        {studentProfile?.practiceHint ||
+                          "Practica una idea a la vez y usa las pistas solo cuando haga falta."}
                       </p>
                     </div>
                     {exercises.map((exercise, index) => (

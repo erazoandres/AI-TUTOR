@@ -81,15 +81,15 @@ export function useGroqAPI() {
     return response.json();
   };
 
-  const sendMessage = async ({ messages, subject, level, topic }) => {
-    const systemPrompt = getTutorPrompt(subject, level, topic);
+  const sendMessage = async ({ messages, subject, grade, mode, topic, studentProfile }) => {
+    const systemPrompt = getTutorPrompt({ subject, grade, mode, topic, studentProfile });
 
     setLoading(true);
     setError(null);
 
     try {
       if (!hasApiKey) {
-        return buildLocalTutorReply({ subject, level, topic, messages });
+        return buildLocalTutorReply({ subject, grade, mode, topic, messages, studentProfile });
       }
 
       const data = await requestGroq({
@@ -100,73 +100,83 @@ export function useGroqAPI() {
 
       const text = normalizeTextResponse(data);
       if (!text) {
-        throw new Error("La respuesta de Groq llegó vacía.");
+        throw new Error("La respuesta de Groq llego vacia.");
       }
 
       return text;
     } catch {
       setError("No pude contactar a Groq. Estoy usando una respuesta local de apoyo.");
-      return buildLocalTutorReply({ subject, level, topic, messages });
+      return buildLocalTutorReply({ subject, grade, mode, topic, messages, studentProfile });
     } finally {
       setLoading(false);
     }
   };
 
-  const generateExercises = async ({ subject, topic, level }) => {
+  const generateExercises = async ({ subject, topic, grade, mode, studentProfile }) => {
     setLoading(true);
     setError(null);
 
     try {
       if (!hasApiKey) {
-        return buildLocalExercises({ subject, topic, level }).ejercicios;
+        return buildLocalExercises({ subject, topic, grade, mode, studentProfile }).ejercicios;
       }
 
       const data = await requestGroq({
-        systemPrompt: getTutorPrompt(subject, level, topic),
-        messages: [{ role: "user", content: getExercisePrompt(subject, topic, level) }],
+        systemPrompt: getTutorPrompt({ subject, grade, mode, topic, studentProfile }),
+        messages: [
+          {
+            role: "user",
+            content: getExercisePrompt({ subject, topic, grade, mode, studentProfile }),
+          },
+        ],
         maxCompletionTokens: 1200,
         responseFormat: { type: "json_object" },
       });
 
       const parsed = safeParseJson(normalizeTextResponse(data));
       if (!Array.isArray(parsed?.ejercicios)) {
-        throw new Error("El formato de ejercicios no fue válido.");
+        throw new Error("El formato de ejercicios no fue valido.");
       }
 
       return parsed.ejercicios;
     } catch {
-      setError("No pude generar ejercicios con Groq. Dejé una versión local para que sigamos.");
-      return buildLocalExercises({ subject, topic, level }).ejercicios;
+      setError("No pude generar ejercicios con Groq. Deje una version local para que sigamos.");
+      return buildLocalExercises({ subject, topic, grade, mode, studentProfile }).ejercicios;
     } finally {
       setLoading(false);
     }
   };
 
-  const generateQuiz = async ({ subject, topic, level }) => {
+  const generateQuiz = async ({ subject, topic, grade, mode, studentProfile }) => {
     setLoading(true);
     setError(null);
 
     try {
       if (!hasApiKey) {
-        return buildLocalQuiz({ subject, topic, level }).preguntas;
+        return buildLocalQuiz({ subject, topic, grade, mode, studentProfile }).preguntas;
       }
 
       const data = await requestGroq({
-        systemPrompt: getTutorPrompt(subject, level, topic),
-        messages: [{ role: "user", content: getQuizPrompt(subject, topic, level) }],
+        systemPrompt: getTutorPrompt({ subject, grade, mode, topic, studentProfile }),
+        messages: [
+          {
+            role: "user",
+            content: getQuizPrompt({ subject, topic, grade, mode, studentProfile }),
+          },
+        ],
         maxCompletionTokens: 1400,
         responseFormat: { type: "json_object" },
       });
 
       const parsed = safeParseJson(normalizeTextResponse(data));
       if (!Array.isArray(parsed?.preguntas)) {
-        throw new Error("El formato del quiz no fue válido.");
+        throw new Error("El formato del quiz no fue valido.");
       }
 
       return parsed.preguntas;
     } catch {
-      setError("No pude generar el quiz con Groq. Dejé una versión local para practicar.");
-      return buildLocalQuiz({ subject, topic, level }).preguntas;
+      setError("No pude generar el quiz con Groq. Deje una version local para practicar.");
+      return buildLocalQuiz({ subject, topic, grade, mode, studentProfile }).preguntas;
     } finally {
       setLoading(false);
     }

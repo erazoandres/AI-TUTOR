@@ -1,7 +1,6 @@
-const LEVEL_GUIDES = {
-  basico: "Primero que es, luego como reconocerlo y al final una aplicacion sencilla.",
-  intermedio: "Conectemos la idea con un procedimiento claro para usarla sin memorizarla.",
-  avanzado: "Vamos a mirar la logica del tema, un error frecuente y una aplicacion retadora.",
+const MODE_GUIDES = {
+  easy: "Vamos paso a paso, con una sola idea a la vez y un ejemplo muy claro.",
+  hard: "Vamos a entender la idea y luego a justificar un poco mas la respuesta.",
 };
 
 const SUBJECT_EXAMPLES = {
@@ -19,24 +18,12 @@ const SUBJECT_EXAMPLES = {
     "Si quieres que un personaje avance y luego salte, escribes instrucciones en orden.",
 };
 
-function cleanMojibake(value) {
-  return value
-    .replace(/Ã¡/g, "a")
-    .replace(/Ã©/g, "e")
-    .replace(/Ã­/g, "i")
-    .replace(/Ã³/g, "o")
-    .replace(/Ãº/g, "u")
-    .replace(/Ã±/g, "n")
-    .replace(/Ã/g, "");
-}
-
 function normalizeKey(value) {
-  const base = cleanMojibake(value || "");
-  return base
+  return (value || "")
     .normalize("NFD")
     .replace(/[\u0300-\u036f]/g, "")
     .toLowerCase()
-    .replace(/[^a-z]/g, "");
+    .replace(/[^a-z0-9]/g, "");
 }
 
 function getLastUserMessage(messages) {
@@ -50,64 +37,92 @@ function getFocusLabel(topic, fallback) {
   return topic?.trim() || fallback;
 }
 
-export function buildLocalTutorReply({ subject, level, topic, messages }) {
+function getProfileLabels(studentProfile, grade, mode) {
+  return {
+    gradeLabel: studentProfile?.grade?.longLabel || grade || "este grado",
+    modeName: studentProfile?.mode?.name || mode || "Facil",
+  };
+}
+
+export function buildLocalTutorReply({
+  subject,
+  grade,
+  mode,
+  topic,
+  messages,
+  studentProfile,
+}) {
   const lastQuestion = getLastUserMessage(messages);
   const focus = getFocusLabel(topic, lastQuestion || subject);
-  const levelKey = normalizeKey(level);
   const subjectKey = normalizeKey(subject);
-  const guide = LEVEL_GUIDES[levelKey] || LEVEL_GUIDES.intermedio;
+  const { gradeLabel, modeName } = getProfileLabels(studentProfile, grade, mode);
+  const modeGuide = MODE_GUIDES[mode] || MODE_GUIDES.easy;
   const example =
     SUBJECT_EXAMPLES[subjectKey] ||
     "Primero identifica la idea central, luego piensa en un ejemplo cercano y por ultimo explicala con tus palabras.";
 
   return [
-    `Idea clave: Antes de practicar ${focus}, entiende que idea quiere explicar dentro de ${subject}.`,
-    `Recuerda: ${guide}`,
+    `Idea clave: Para ${gradeLabel}, ${focus} en ${subject} se entiende mejor si tomas una idea por vez.`,
     `Ejemplo: ${example}`,
-    `Tu turno: Explicame ${focus} con tus palabras o pideme un ejemplo mas corto.`,
+    `Recuerda: ${modeGuide}`,
+    `Tu turno: ${
+      modeName === "Dificil"
+        ? `Explicame por que ${focus} funciona asi en una o dos frases.`
+        : `Explicame ${focus} con tus palabras o pideme un ejemplo mas corto.`
+    }`,
   ].join("\n\n");
 }
 
-export function buildLocalExercises({ subject, topic, level }) {
+export function buildLocalExercises({ subject, topic, grade, mode, studentProfile }) {
   const focus = getFocusLabel(topic, subject);
+  const { gradeLabel } = getProfileLabels(studentProfile, grade, mode);
+  const modeGuide =
+    mode === "hard"
+      ? "En el ultimo ejercicio pide justificar o detectar un error."
+      : "Las pistas deben sentirse cercanas y muy guiadas.";
 
   return {
     ejercicios: [
       {
-        enunciado: `Explica con tus palabras que significa ${focus} en ${subject} y menciona una situacion donde lo usarias.`,
+        enunciado: `Explica con tus palabras que significa ${focus} en ${subject} para ${gradeLabel}.`,
         pistas: [
-          "Empieza por una definicion breve.",
-          "Despues conecta la idea con un caso cotidiano o escolar.",
+          "Empieza por una idea breve y clara.",
+          "Luego conectala con una situacion cercana al colegio o la vida diaria.",
         ],
-        respuesta: `Una buena respuesta define ${focus} con claridad, indica que problema ayuda a resolver y anade un ejemplo sencillo acorde al nivel ${level}.`,
+        respuesta: `Una buena respuesta define ${focus} con claridad y lo conecta con un ejemplo sencillo para ${gradeLabel}.`,
       },
       {
-        enunciado: `Identifica un error frecuente al estudiar ${focus} y corrigelo paso a paso.`,
+        enunciado: `Muestra un error frecuente al estudiar ${focus} y corrigelo paso a paso.`,
         pistas: [
-          "Piensa en una confusion tipica entre concepto y procedimiento.",
-          "La correccion debe mostrar por que el error parece razonable al inicio.",
+          "Piensa en una confusion comun entre concepto y procedimiento.",
+          "La correccion debe decir por que la idea correcta funciona mejor.",
         ],
-        respuesta: `La correccion debe separar la idea correcta del error, justificar por que la version correcta funciona mejor y cerrar con una regla practica para recordarla.`,
+        respuesta: `La correccion debe separar el error de la idea correcta y dejar una regla practica para recordarla.`,
       },
       {
         enunciado: `Resuelve una aplicacion corta de ${focus} y explica cada decision que tomas.`,
         pistas: [
-          "Nombra el dato de partida antes de operar o interpretar.",
-          "Justifica cada paso, no solo el resultado final.",
+          "Nombra el dato de partida antes de resolver.",
+          modeGuide,
         ],
-        respuesta: `La solucion ideal muestra el procedimiento completo, revisa si el resultado tiene sentido y resume que aprendiste sobre ${focus}.`,
+        respuesta: `La solucion ideal muestra el procedimiento, revisa si el resultado tiene sentido y resume que aprendiste sobre ${focus}.`,
       },
     ],
   };
 }
 
-export function buildLocalQuiz({ subject, topic }) {
+export function buildLocalQuiz({ subject, topic, grade, mode, studentProfile }) {
   const focus = getFocusLabel(topic, subject);
+  const { gradeLabel } = getProfileLabels(studentProfile, grade, mode);
+  const challengeLine =
+    mode === "hard"
+      ? "Elige la opcion que mejor justifica la idea."
+      : "Elige la opcion que muestra la idea mas clara.";
 
   return {
     preguntas: [
       {
-        pregunta: `Cual es el objetivo principal de estudiar ${focus} dentro de ${subject}?`,
+        pregunta: `Para ${gradeLabel}, cual es el objetivo principal de estudiar ${focus} dentro de ${subject}?`,
         opciones: [
           "A) Entender la idea y saber aplicarla en contexto",
           "B) Memorizar palabras sueltas sin relacionarlas",
@@ -117,6 +132,18 @@ export function buildLocalQuiz({ subject, topic }) {
         respuesta_correcta: "A",
         explicacion:
           "Aprender bien no es repetir: tambien es comprender y usar la idea cuando hace falta.",
+      },
+      {
+        pregunta: `${challengeLine}`,
+        opciones: [
+          "A) Porque ayuda a entender el concepto y cuando usarlo",
+          "B) Porque evita pensar en el problema",
+          "C) Porque hace innecesario revisar errores",
+          "D) Porque todos los temas se resuelven igual",
+        ],
+        respuesta_correcta: "A",
+        explicacion:
+          "La mejor opcion es la que conecta la idea con su uso real y no solo con memoria literal.",
       },
       {
         pregunta: `Si alguien comete un error con ${focus}, que conviene revisar primero?`,
@@ -153,18 +180,6 @@ export function buildLocalQuiz({ subject, topic }) {
         respuesta_correcta: "A",
         explicacion:
           "Entender de verdad significa poder explicarlo y decir por que una respuesta tiene sentido.",
-      },
-      {
-        pregunta: `Si tuvieras que repasar ${focus} manana, que plan seria mas efectivo?`,
-        opciones: [
-          "A) Hacer solo una lectura pasiva",
-          "B) Resumir la idea, resolver un ejercicio corto y revisar errores",
-          "C) Cambiar de tema antes de practicar",
-          "D) Memorizar la respuesta final sin pasos",
-        ],
-        respuesta_correcta: "B",
-        explicacion:
-          "Repasar con una idea corta, una practica breve y correccion de errores suele funcionar mejor.",
       },
     ],
   };

@@ -1,17 +1,32 @@
-export const getTutorPrompt = (subject, level, topic) => `
+function getProfileLabel(studentProfile, fallbackGrade, fallbackMode) {
+  const gradeLabel = studentProfile?.grade?.longLabel || fallbackGrade || "grado no indicado";
+  const modeLabel = studentProfile?.mode?.name || fallbackMode || "Facil";
+
+  return { gradeLabel, modeLabel };
+}
+
+export const getTutorPrompt = ({ subject, topic, grade, mode, studentProfile }) => {
+  const { gradeLabel, modeLabel } = getProfileLabel(studentProfile, grade, mode);
+
+  return `
 Eres TutorIA, un tutor amable, claro y paciente.
 
 Materia principal: ${subject}
-Nivel del estudiante: ${level}
+Grado del estudiante: ${gradeLabel}
+Modo activo: ${modeLabel}
 ${topic ? `Tema de foco actual: ${topic}` : "Tema de foco actual: libre"}
+Perfil esperado: ${studentProfile?.summary || "Ajusta la respuesta al grado y al modo indicado."}
+Guia de respuesta: ${studentProfile?.responseGuidance || ""}
 
 Reglas:
 - Responde siempre en espanol.
-- Explica como a ninos de 11 anos: lenguaje simple, concreto y amable.
+- Adapta vocabulario, profundidad y ejemplos al grado indicado.
+- Si el modo es Facil, divide en pasos pequenos y evita saltos.
+- Si el modo es Dificil, manten claridad pero pide pensar, comparar o justificar un poco mas.
 - Usa frases cortas. Evita parrafos largos y tecnicismos innecesarios.
 - Responde en maximo 120 palabras, salvo que el estudiante pida mas detalle.
 - Da una sola idea principal por respuesta.
-- Usa ejemplos cotidianos y faciles de imaginar.
+- Usa ejemplos cotidianos y faciles de imaginar para ese grado.
 - Si el estudiante se equivoca, corrige con respeto y explica el porque en pocas palabras.
 - Si hace falta, usa como maximo 3 pasos numerados.
 - Usa este formato siempre que puedas:
@@ -20,9 +35,15 @@ Ejemplo: ...
 Tu turno: ...
 - En "Tu turno" deja una pregunta corta, una mini comprobacion o un reto de una linea.
 `;
+};
 
-export const getExercisePrompt = (subject, topic, level) => `
-Genera 3 ejercicios practicos sobre "${topic}" en ${subject} para nivel ${level}.
+export const getExercisePrompt = ({ subject, topic, grade, mode, studentProfile }) => {
+  const { gradeLabel, modeLabel } = getProfileLabel(studentProfile, grade, mode);
+
+  return `
+Genera 3 ejercicios practicos sobre "${topic}" en ${subject} para ${gradeLabel} en modo ${modeLabel}.
+
+Contexto de adaptacion: ${studentProfile?.exerciseGuidance || "Ajusta la dificultad al grado y modo."}
 
 Devuelve solo JSON valido, sin markdown, sin comentarios y sin bloques de codigo.
 
@@ -37,11 +58,17 @@ Formato exacto:
   ]
 }
 
-Los ejercicios deben ser progresivos: facil, medio y dificil.
+Los ejercicios deben ser progresivos para ese perfil: del mas accesible al mas retador, sin salirte del grado indicado.
 `;
+};
 
-export const getQuizPrompt = (subject, topic, level) => `
-Genera un quiz de 5 preguntas de opcion multiple sobre "${topic}" en ${subject} para nivel ${level}.
+export const getQuizPrompt = ({ subject, topic, grade, mode, studentProfile }) => {
+  const { gradeLabel, modeLabel } = getProfileLabel(studentProfile, grade, mode);
+
+  return `
+Genera un quiz de 5 preguntas de opcion multiple sobre "${topic}" en ${subject} para ${gradeLabel} en modo ${modeLabel}.
+
+Contexto de adaptacion: ${studentProfile?.quizGuidance || "Ajusta la dificultad al grado y modo."}
 
 Devuelve solo JSON valido, sin markdown, sin comentarios y sin bloques de codigo.
 
@@ -57,5 +84,6 @@ Formato exacto:
   ]
 }
 
-Las preguntas deben evaluar comprension real, no solo memorizacion.
+Las preguntas deben evaluar comprension real y ajustarse al grado indicado, no solo memorizacion.
 `;
+};

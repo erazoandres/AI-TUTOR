@@ -99,15 +99,6 @@ select {
   background: transparent;
 }
 
-.no-scrollbar {
-  -ms-overflow-style: none;
-  scrollbar-width: none;
-}
-
-.no-scrollbar::-webkit-scrollbar {
-  display: none;
-}
-
 .ios-surface {
   background: var(--surface-card);
   border: 1px solid var(--line);
