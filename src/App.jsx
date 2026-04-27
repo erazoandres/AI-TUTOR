@@ -349,6 +349,7 @@ export default function App() {
             grade={session.grade}
             mode={session.mode}
             studentProfile={studentProfile}
+            onBackToSetup={() => handleSessionChange({ ready: false })}
           />
         </main>
       </div>

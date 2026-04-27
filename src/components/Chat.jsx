@@ -1,5 +1,6 @@
 import { useEffect, useMemo, useRef, useState } from "react";
 import {
+  ArrowLeft,
   BookOpen,
   CheckCircle2,
   HelpCircle,
@@ -75,7 +76,7 @@ function readStoredChat(storageKey) {
   }
 }
 
-export default function Chat({ subject, grade, mode, studentProfile }) {
+export default function Chat({ subject, grade, mode, studentProfile, onBackToSetup }) {
   const storageKey = useMemo(
     () => getStorageKey(subject, grade, mode),
     [subject, grade, mode]
@@ -392,6 +393,14 @@ export default function Chat({ subject, grade, mode, studentProfile }) {
             </div>
 
             <div className="flex flex-wrap items-center gap-2">
+              <button
+                type="button"
+                onClick={onBackToSetup}
+                className="ios-surface-muted inline-flex items-center gap-2 rounded-full px-3 py-2 text-xs font-semibold text-[color:var(--text-secondary)] transition hover:text-[color:var(--text-primary)]"
+              >
+                <ArrowLeft className="h-3.5 w-3.5" />
+                Setup
+              </button>
               <button
                 type="button"
                 onClick={handleGenerateExercises}
