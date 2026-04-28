@@ -54,13 +54,7 @@ export default function ChatHeader({
               >
                 {activeTopic || "Elegir tema"}
               </button>
-              <span
-                className={`rounded-full px-3 py-2 text-xs font-bold ${
-                  STATUS_BADGES[currentTopicStatus]
-                }`}
-              >
-                {TOPIC_STATUS_LABELS[currentTopicStatus]}
-              </span>
+              {/* Status badge removed to save horizontal space */}
             </div>
           </div>
 

@@ -90,82 +90,47 @@ export default function PracticeWorkspace({
       <div className="ios-surface grid gap-3 rounded-2xl px-3 py-3 lg:grid-cols-[minmax(0,1fr)_auto] lg:items-start">
         <div className="grid gap-3">
           <div className="flex flex-wrap items-center gap-2">
-            {!(hasExercises || hasQuiz) && (
-              <>
-                <button
-                  type="button"
-                  onClick={onGenerateExercises}
-                  disabled={loading}
-                  className={cx(
-                    "practice-mode-button",
-                    practiceView === "exercises" && hasExercises && "is-active"
-                  )}
-                >
-                  <span className="primary-action inline-flex h-9 w-9 items-center justify-center rounded-full">
-                    <BookOpen className="h-4 w-4" aria-hidden="true" />
-                  </span>
-                  <span className="min-w-0">
-                    <span className="block text-sm font-bold">Ejercicios</span>
-                    <span className="block truncate text-[11px] text-[color:var(--text-secondary)]">
-                      practica guiada
-                    </span>
-                  </span>
-                </button>
+            <button
+              type="button"
+              onClick={onGenerateExercises}
+              disabled={loading}
+              className={cx(
+                "practice-mode-button",
+                practiceView === "exercises" && hasExercises && "is-active"
+              )}
+            >
+              <span className="primary-action inline-flex h-9 w-9 items-center justify-center rounded-full">
+                <BookOpen className="h-4 w-4" aria-hidden="true" />
+              </span>
+              <span className="min-w-0">
+                <span className="block text-sm font-bold">Ejercicios</span>
+                <span className="block truncate text-[11px] text-[color:var(--text-secondary)]">
+                  practica guiada
+                </span>
+              </span>
+            </button>
 
-                <button
-                  type="button"
-                  onClick={onGenerateQuiz}
-                  disabled={loading}
-                  className={cx(
-                    "practice-mode-button",
-                    practiceView === "quiz" && hasQuiz && "is-active"
-                  )}
-                >
-                  <span className="inline-flex h-9 w-9 items-center justify-center rounded-full bg-[color:var(--danger-soft)] text-[color:var(--color-coral)]">
-                    <HelpCircle className="h-4 w-4" aria-hidden="true" />
-                  </span>
-                  <span className="min-w-0">
-                    <span className="block text-sm font-bold">Quiz</span>
-                    <span className="block truncate text-[11px] text-[color:var(--text-secondary)]">
-                      evaluacion rapida
-                    </span>
-                  </span>
-                </button>
-              </>
-            )}
+            <button
+              type="button"
+              onClick={onGenerateQuiz}
+              disabled={loading}
+              className={cx(
+                "practice-mode-button",
+                practiceView === "quiz" && hasQuiz && "is-active"
+              )}
+            >
+              <span className="inline-flex h-9 w-9 items-center justify-center rounded-full bg-[color:var(--danger-soft)] text-[color:var(--color-coral)]">
+                <HelpCircle className="h-4 w-4" aria-hidden="true" />
+              </span>
+              <span className="min-w-0">
+                <span className="block text-sm font-bold">Quiz</span>
+                <span className="block truncate text-[11px] text-[color:var(--text-secondary)]">
+                  evaluacion rapida
+                </span>
+              </span>
+            </button>
 
-            {(hasExercises || hasQuiz) && (
-              <div
-                className="ios-segmented grid min-w-[220px] grid-cols-2 rounded-full p-1"
-                role="tablist"
-                aria-label="Tipo de practica"
-              >
-                <button
-                  type="button"
-                  role="tab"
-                  aria-selected={practiceView === "exercises"}
-                  onClick={() => onPracticeViewChange("exercises")}
-                  className={cx(
-                    "ios-segmented-button px-3 py-2 text-xs font-bold",
-                    practiceView === "exercises" && "is-active"
-                  )}
-                >
-                  Ejercicios
-                </button>
-                <button
-                  type="button"
-                  role="tab"
-                  aria-selected={practiceView === "quiz"}
-                  onClick={() => onPracticeViewChange("quiz")}
-                  className={cx(
-                    "ios-segmented-button px-3 py-2 text-xs font-bold",
-                    practiceView === "quiz" && "is-active"
-                  )}
-                >
-                  Quiz
-                </button>
-              </div>
-            )}
+            {/* Se quita el control segmentado duplicado para dar más espacio al contenido de práctica */}
           </div>
 
           <div className="grid gap-2 md:grid-cols-[minmax(0,1fr)_auto] md:items-center">

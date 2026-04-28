@@ -418,11 +418,8 @@ export default function Chat({ subject, grade, mode, studentProfile, onBackToSet
   const hasExercises = exercises.length > 0;
   const hasQuiz = quiz.length > 0;
   const hasStartedConversation = messages.length > 0;
-  const hasExercises = exercises.length > 0;
-  const hasQuiz = quiz.length > 0;
-  const isHeaderCondensed =
-    (hasStartedConversation && !isHeaderExpanded) ||
-    (workspaceView === "practice" && (hasExercises || hasQuiz));
+  // Condensa el header también cuando se está en la vista de práctica
+  const isHeaderCondensed = workspaceView === "practice" || (hasStartedConversation && !isHeaderExpanded);
 
   useEffect(() => {
     if (messages.length === 1) {
