@@ -418,7 +418,11 @@ export default function Chat({ subject, grade, mode, studentProfile, onBackToSet
   const hasExercises = exercises.length > 0;
   const hasQuiz = quiz.length > 0;
   const hasStartedConversation = messages.length > 0;
-  const isHeaderCondensed = hasStartedConversation && !isHeaderExpanded;
+  const hasExercises = exercises.length > 0;
+  const hasQuiz = quiz.length > 0;
+  const isHeaderCondensed =
+    (hasStartedConversation && !isHeaderExpanded) ||
+    (workspaceView === "practice" && (hasExercises || hasQuiz));
 
   useEffect(() => {
     if (messages.length === 1) {
