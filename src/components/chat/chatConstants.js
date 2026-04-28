@@ -1,4 +1,4 @@
-import { BookOpen, LayoutGrid, MessageSquare } from "lucide-react";
+import { BarChart3, BookOpen, LayoutGrid, MessageSquare } from "lucide-react";
 
 export const TOPIC_STATUS_LABELS = {
   pendiente: "Pendiente",
@@ -18,4 +18,5 @@ export const WORKSPACE_TABS = [
   { id: "chat", label: "Hablar", icon: MessageSquare },
   { id: "practice", label: "Practicar", icon: BookOpen },
   { id: "topics", label: "Temas", icon: LayoutGrid },
+  { id: "progress", label: "Avance", icon: BarChart3 },
 ];

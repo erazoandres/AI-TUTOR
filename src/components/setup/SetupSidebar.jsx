@@ -1,64 +1,51 @@
+import { Sparkles } from "lucide-react";
 import { SETUP_STEPS } from "./setupConstants";
 import { cx } from "../../utils/classNames";
 
 export default function SetupSidebar({
   activeStep,
   step,
-  selectedSubject,
-  selectedGrade,
-  selectedMode,
-  selectionChips,
 }) {
   return (
-    <aside className="rounded-[26px] border border-[color:var(--line)] bg-[color:var(--surface-elevated)] px-3 py-3">
-      <div className="flex items-center gap-2" aria-hidden="true">
+    <aside className="flex min-h-0 flex-col rounded-2xl border border-[color:var(--line)] bg-[color:var(--surface-elevated)] px-3 py-3">
+      <div className="flex items-center gap-2" aria-label="Progreso de configuracion">
         {SETUP_STEPS.map((item, index) => (
           <div
             key={item.id}
             className={cx(
               "h-2 flex-1 rounded-full transition",
-              index <= activeStep ? "bg-[color:var(--accent)]" : "bg-[color:var(--line)]"
+              index <= activeStep
+                ? "primary-action"
+                : "bg-[color:var(--line)]"
             )}
           />
         ))}
       </div>
 
-      <p className="mt-3 text-[11px] font-semibold uppercase tracking-[0.08em] text-[color:var(--text-secondary)]">
-        {step.label}
-      </p>
-      <h1 className="mt-2 text-[1.35rem] font-bold leading-tight text-balance">
-        {step.title}
-      </h1>
-      <p className="mt-1 text-xs text-[color:var(--text-secondary)]">{step.hint}</p>
-
-      <div
-        className={`mt-4 rounded-[24px] bg-gradient-to-br ${selectedSubject.meta.activeBg} px-3 py-3 ring-1 ${selectedSubject.meta.activeRing}`}
-      >
-        <div className="flex items-center gap-3">
-          <span
-            className={`inline-flex h-10 w-10 shrink-0 items-center justify-center rounded-2xl text-lg ${selectedSubject.meta.bubble}`}
-            aria-hidden="true"
-          >
-            {selectedSubject.emoji}
-          </span>
-          <div className="min-w-0">
-            <p className="truncate text-sm font-semibold">{selectedSubject.name}</p>
-            <p className="truncate text-xs text-[color:var(--text-secondary)]">
-              {selectedGrade.label} - {selectedMode.name}
-            </p>
+      <div className="mt-3 flex flex-1 flex-col gap-3">
+        <section className="shrink-0">
+          <div className="inline-flex items-center gap-2 rounded-full px-2.5 py-1 text-[11px] font-bold ios-chip">
+            <Sparkles className="h-3.5 w-3.5 text-[color:var(--accent-strong)]" aria-hidden="true" />
+            {step.label}
           </div>
-        </div>
 
-        <div className="mt-3 flex flex-wrap gap-2">
-          {selectionChips.map((chip) => (
-            <span
-              key={chip.key}
-              className={`rounded-full px-2.5 py-1 text-[10px] font-semibold ${chip.tone}`}
-            >
-              {chip.value}
-            </span>
-          ))}
-        </div>
+          <h1 className="display-font mt-3 max-w-[12ch] text-[clamp(1.5rem,2.2vw,2.1rem)] font-extrabold leading-[0.94] tracking-tight">
+            Ruta lista para <span className="study-gradient-text">empezar bien</span>
+          </h1>
+          <p className="mt-2 max-w-[28ch] text-[13px] leading-5 text-[color:var(--text-secondary)]">
+            Materia, grado y dificultad quedan alineados antes de entrar al tutor.
+          </p>
+        </section>
+
+        <section className="ios-surface-muted mt-auto rounded-xl px-3 py-3">
+          <p className="text-[11px] font-bold uppercase tracking-[0.08em] text-[color:var(--text-secondary)]">
+            Antes de entrar
+          </p>
+          <p className="mt-2 text-[13px] leading-5 text-[color:var(--text-secondary)]">
+            Primero elige la materia, luego el grado y al final la dificultad del tutor. La vista
+            final aparecera cuando la configuracion quede completa.
+          </p>
+        </section>
       </div>
     </aside>
   );

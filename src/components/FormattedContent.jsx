@@ -198,8 +198,9 @@ function parseBlocks(content) {
   return blocks;
 }
 
-export default function FormattedContent({ content }) {
+export default function FormattedContent({ content, animated = false }) {
   const blocks = parseBlocks(content);
+  const revealClass = animated ? "formatted-reveal-block" : "";
 
   return (
     <div className="formatted-content">
@@ -208,7 +209,8 @@ export default function FormattedContent({ content }) {
           return (
             <div
               key={`callout-${blockIndex}`}
-              className={`formatted-callout formatted-callout-${block.tone}`}
+              className={`formatted-callout formatted-callout-${block.tone} ${revealClass}`}
+              style={animated ? { animationDelay: `${80 + blockIndex * 55}ms` } : undefined}
             >
               <span className="formatted-callout-label">{block.label}</span>
               <p className="formatted-callout-text">
@@ -227,7 +229,11 @@ export default function FormattedContent({ content }) {
                 : "text-sm font-semibold uppercase tracking-wide text-[color:var(--text-secondary)]";
 
           return (
-            <h4 key={`heading-${blockIndex}`} className={headingClass}>
+            <h4
+              key={`heading-${blockIndex}`}
+              className={`${headingClass} ${revealClass}`}
+              style={animated ? { animationDelay: `${80 + blockIndex * 55}ms` } : undefined}
+            >
               {renderInline(block.text, `heading-${blockIndex}`)}
             </h4>
           );
@@ -235,7 +241,11 @@ export default function FormattedContent({ content }) {
 
         if (block.type === "ordered") {
           return (
-            <ol key={`ordered-${blockIndex}`} className="space-y-3">
+            <ol
+              key={`ordered-${blockIndex}`}
+              className={`space-y-3 ${revealClass}`}
+              style={animated ? { animationDelay: `${80 + blockIndex * 55}ms` } : undefined}
+            >
               {block.items.map((item, itemIndex) => (
                 <li key={`ordered-item-${itemIndex}`} className="formatted-row">
                   <span className="formatted-index">{itemIndex + 1}</span>
@@ -248,7 +258,11 @@ export default function FormattedContent({ content }) {
 
         if (block.type === "unordered") {
           return (
-            <ul key={`unordered-${blockIndex}`} className="space-y-2.5">
+            <ul
+              key={`unordered-${blockIndex}`}
+              className={`space-y-2.5 ${revealClass}`}
+              style={animated ? { animationDelay: `${80 + blockIndex * 55}ms` } : undefined}
+            >
               {block.items.map((item, itemIndex) => (
                 <li key={`unordered-item-${itemIndex}`} className="formatted-row">
                   <span className="formatted-dot" />
@@ -260,7 +274,11 @@ export default function FormattedContent({ content }) {
         }
 
         return (
-          <p key={`paragraph-${blockIndex}`}>
+          <p
+            key={`paragraph-${blockIndex}`}
+            className={revealClass}
+            style={animated ? { animationDelay: `${80 + blockIndex * 55}ms` } : undefined}
+          >
             {renderInline(block.text, `paragraph-${blockIndex}`)}
           </p>
         );

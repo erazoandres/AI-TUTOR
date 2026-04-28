@@ -7,6 +7,8 @@ export const SUBJECT_META = {
     badge: "bg-sky-500/12 text-sky-700 dark:text-sky-200",
     bubble: "bg-sky-500/14 text-sky-700 dark:text-sky-200",
     bar: "bg-sky-500",
+    glow: "#3B82F6",
+    glowSoft: "rgba(59, 130, 246, 0.18)",
   },
   fisica: {
     categoryLabel: "Ciencias",
@@ -16,6 +18,8 @@ export const SUBJECT_META = {
     badge: "bg-amber-500/14 text-amber-700 dark:text-amber-200",
     bubble: "bg-amber-500/16 text-amber-700 dark:text-amber-200",
     bar: "bg-amber-500",
+    glow: "#F59E0B",
+    glowSoft: "rgba(245, 158, 11, 0.18)",
   },
   quimica: {
     categoryLabel: "Ciencias",
@@ -25,6 +29,8 @@ export const SUBJECT_META = {
     badge: "bg-emerald-500/14 text-emerald-700 dark:text-emerald-200",
     bubble: "bg-emerald-500/16 text-emerald-700 dark:text-emerald-200",
     bar: "bg-emerald-500",
+    glow: "#10B981",
+    glowSoft: "rgba(16, 185, 129, 0.18)",
   },
   biologia: {
     categoryLabel: "Ciencias",
@@ -34,6 +40,8 @@ export const SUBJECT_META = {
     badge: "bg-pink-500/14 text-pink-700 dark:text-pink-200",
     bubble: "bg-pink-500/16 text-pink-700 dark:text-pink-200",
     bar: "bg-pink-500",
+    glow: "#EC4899",
+    glowSoft: "rgba(236, 72, 153, 0.18)",
   },
   historia: {
     categoryLabel: "Humanas",
@@ -43,6 +51,8 @@ export const SUBJECT_META = {
     badge: "bg-violet-500/14 text-violet-700 dark:text-violet-200",
     bubble: "bg-violet-500/16 text-violet-700 dark:text-violet-200",
     bar: "bg-violet-500",
+    glow: "#8B5CF6",
+    glowSoft: "rgba(139, 92, 246, 0.18)",
   },
   lengua: {
     categoryLabel: "Humanas",
@@ -52,6 +62,8 @@ export const SUBJECT_META = {
     badge: "bg-rose-500/14 text-rose-700 dark:text-rose-200",
     bubble: "bg-rose-500/16 text-rose-700 dark:text-rose-200",
     bar: "bg-rose-500",
+    glow: "#F43F5E",
+    glowSoft: "rgba(244, 63, 94, 0.18)",
   },
   programacion: {
     categoryLabel: "Tech",
@@ -61,6 +73,8 @@ export const SUBJECT_META = {
     badge: "bg-cyan-500/14 text-cyan-700 dark:text-cyan-200",
     bubble: "bg-cyan-500/16 text-cyan-700 dark:text-cyan-200",
     bar: "bg-cyan-500",
+    glow: "#06B6D4",
+    glowSoft: "rgba(6, 182, 212, 0.18)",
   },
 };
 

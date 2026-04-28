@@ -1,7 +1,22 @@
 export const SETUP_STEPS = [
-  { id: "subject", label: "Tema", title: "Que quieres estudiar?", hint: "Elige una materia" },
-  { id: "grade", label: "Grado", title: "En que grado estas?", hint: "Del 5to al 11" },
-  { id: "mode", label: "Dificultad", title: "Como lo quieres?", hint: "Facil o dificil" },
+  {
+    id: "subject",
+    label: "Materia",
+    title: "Elige tu punto de partida",
+    hint: "Selecciona una materia y revisa el avance que ya tienes.",
+  },
+  {
+    id: "grade",
+    label: "Grado",
+    title: "Ajusta el nivel escolar",
+    hint: "El tutor adapta ejemplos, profundidad y practica a tu grado.",
+  },
+  {
+    id: "mode",
+    label: "Dificultad",
+    title: "Elige como quieres la explicacion",
+    hint: "Facil resume y guia, Medio equilibra, Detallado profundiza mas.",
+  },
 ];
 
 export const MODE_ACCENTS = {
@@ -9,8 +24,12 @@ export const MODE_ACCENTS = {
     badge: "bg-sky-500/12 text-sky-700 dark:text-sky-200",
     bubble: "bg-sky-500/14 text-sky-700 dark:text-sky-200",
   },
-  hard: {
-    badge: "bg-rose-500/14 text-rose-700 dark:text-rose-200",
-    bubble: "bg-rose-500/16 text-rose-700 dark:text-rose-200",
+  medium: {
+    badge: "bg-violet-500/14 text-violet-700 dark:text-violet-200",
+    bubble: "bg-violet-500/16 text-violet-700 dark:text-violet-200",
+  },
+  detailed: {
+    badge: "bg-amber-500/16 text-amber-700 dark:text-amber-200",
+    bubble: "bg-amber-500/18 text-amber-700 dark:text-amber-200",
   },
 };

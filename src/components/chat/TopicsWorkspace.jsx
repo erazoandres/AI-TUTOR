@@ -24,9 +24,9 @@ export default function TopicsWorkspace({
               aria-pressed={isActive}
               onClick={() => onTopicSelect(topic)}
               className={cx(
-                "rounded-[22px] border px-4 py-4 text-left transition",
+                "hover-lift rounded-2xl border px-4 py-4 text-left transition",
                 isActive
-                  ? "border-transparent bg-[color:var(--accent-soft)] shadow-sm"
+                  ? "border-transparent bg-[color:var(--accent-soft)] shadow-[var(--shadow-color)]"
                   : "border-[color:var(--line)] bg-[color:var(--surface-elevated)] hover:bg-[color:var(--surface-muted)]"
               )}
             >
@@ -47,7 +47,7 @@ export default function TopicsWorkspace({
         })}
       </div>
 
-      <div className="ios-surface-muted rounded-[24px] px-4 py-4">
+      <div className="ios-surface-muted rounded-2xl px-4 py-4">
         <p className="text-xs font-semibold uppercase tracking-[0.08em] text-[color:var(--text-secondary)]">
           Tema activo
         </p>
@@ -71,10 +71,10 @@ export default function TopicsWorkspace({
                 aria-pressed={currentTopicStatus === statusKey}
                 onClick={() => onUpdateTopic(subject, activeTopic, statusKey)}
                 className={cx(
-                  "rounded-full px-3 py-2 text-xs font-semibold transition",
+                  "rounded-full px-3 py-2 text-xs font-bold transition",
                   currentTopicStatus === statusKey
-                    ? "bg-[color:var(--accent)] text-white"
-                    : "ios-chip hover:text-[color:var(--text-primary)]"
+                    ? "primary-action"
+                    : "ios-chip control-button"
                 )}
               >
                 {label}

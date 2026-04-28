@@ -9,12 +9,12 @@ export default function SetupFooter({
   onStart,
 }) {
   return (
-    <footer className="mt-4 flex items-center justify-between gap-3">
+    <footer className="mt-2 flex items-center justify-between gap-3">
       <button
         type="button"
         onClick={onPrev}
         disabled={activeStep === 0}
-        className="ios-surface-muted inline-flex items-center gap-2 rounded-full px-3 py-2 text-xs font-semibold text-[color:var(--text-secondary)] transition hover:text-[color:var(--text-primary)] disabled:opacity-40"
+        className="ios-surface-muted control-button inline-flex items-center gap-2 rounded-full px-3.5 py-2 text-xs font-bold transition disabled:opacity-40"
       >
         <ChevronLeft className="h-4 w-4" aria-hidden="true" />
         Atras
@@ -28,9 +28,9 @@ export default function SetupFooter({
         <button
           type="button"
           onClick={isLastStep ? onStart : onNext}
-          className="inline-flex items-center gap-2 rounded-full bg-[color:var(--accent)] px-4 py-2.5 text-sm font-semibold text-white shadow-sm transition hover:translate-y-[-1px]"
+          className="primary-action inline-flex items-center gap-2 rounded-full px-4.5 py-2 text-sm font-bold transition"
         >
-          {isLastStep ? "Empezar" : "Seguir"}
+          {isLastStep ? "Entrar al tutor" : "Seguir"}
           <ChevronRight className="h-4 w-4" aria-hidden="true" />
         </button>
       </div>

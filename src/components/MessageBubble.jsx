@@ -5,19 +5,24 @@ export default function MessageBubble({
   role,
   content,
   index = 0,
+  isLatestAssistant = false,
   actions = [],
+  anchorRef = null,
   onAction,
 }) {
   const isUser = role === "user";
 
   return (
     <div
+      ref={anchorRef}
       className={`animate-fade-up flex ${isUser ? "justify-end" : "justify-start"}`}
       style={{ animationDelay: `${Math.min(index * 40, 180)}ms` }}
     >
-      <div className={`max-w-[96%] sm:max-w-[88%] ${isUser ? "order-2" : ""}`}>
+      <div
+        className={`max-w-[96%] sm:max-w-[92%] lg:max-w-[84%] xl:max-w-[78%] ${isUser ? "order-2 lg:max-w-[70%]" : ""}`}
+      >
         {!isUser && (
-          <div className="animate-pop-in mb-2 inline-flex items-center gap-2 rounded-full px-2.5 py-1 text-[11px] font-semibold ios-chip">
+          <div className="animate-pop-in mb-2 inline-flex items-center gap-2 rounded-full px-3 py-1.5 text-[11px] font-bold ios-chip">
             <Sparkles className="h-3.5 w-3.5" aria-hidden="true" />
             TutorIA
           </div>
@@ -25,11 +30,13 @@ export default function MessageBubble({
         <div
           className={`break-words whitespace-pre-wrap px-3.5 py-3 text-sm leading-6 shadow-sm ${
             isUser
-              ? "rounded-[22px] rounded-br-md bg-[color:var(--accent)] text-white"
-              : "ios-surface rounded-[22px] rounded-bl-md text-[color:var(--text-primary)]"
+              ? "primary-action rounded-2xl rounded-br-md text-white"
+              : `ios-surface rounded-2xl rounded-bl-md text-[color:var(--text-primary)] ${
+                  isLatestAssistant ? "assistant-message-reveal" : ""
+                }`
           }`}
         >
-          {isUser ? content : <FormattedContent content={content} />}
+          {isUser ? content : <FormattedContent content={content} animated={isLatestAssistant} />}
         </div>
 
         {!isUser && actions.length > 0 && (
@@ -39,7 +46,7 @@ export default function MessageBubble({
                 key={action.label}
                 type="button"
                 onClick={() => onAction?.(action.prompt)}
-                className="ios-surface-muted rounded-full px-3 py-2 text-xs font-medium text-[color:var(--text-secondary)] transition hover:text-[color:var(--text-primary)]"
+                className="ios-surface-muted control-button rounded-full px-3 py-2 text-xs font-bold transition"
               >
                 {action.label}
               </button>

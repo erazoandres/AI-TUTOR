@@ -8,13 +8,13 @@ export default function ThemeSwitch({ checked, onToggle }) {
       aria-checked={checked}
       aria-label={checked ? "Cambiar a tema claro" : "Cambiar a tema oscuro"}
       onClick={onToggle}
-      className="ios-surface-muted inline-flex items-center gap-2 rounded-full px-2.5 py-2 text-xs font-semibold text-[color:var(--text-primary)] transition hover:scale-[1.01]"
+      className="ios-surface-muted control-button inline-flex items-center gap-2 rounded-full px-2.5 py-2 text-xs font-semibold transition"
     >
       <span
-        className={`inline-flex h-7 w-7 items-center justify-center rounded-full ${
+        className={`inline-flex h-8 w-8 items-center justify-center rounded-full transition ${
           checked
-            ? "bg-slate-900 text-slate-100"
-            : "bg-[color:var(--accent-soft)] text-[color:var(--accent)]"
+            ? "bg-[color:var(--surface-strong)] text-[color:var(--accent-strong)]"
+            : "primary-action"
         }`}
       >
         {checked ? (

@@ -40,7 +40,7 @@ export default function SubjectSelector({ onStart }) {
       <div className="grid gap-4 lg:grid-cols-2 xl:grid-cols-3">
         {SUBJECTS.map((subject) => (
           <section key={subject.id} className="ios-surface overflow-hidden rounded-lg">
-            <div className={`h-1.5 w-full ${SUBJECT_ACCENTS[subject.id] || "bg-blue-500"}`} />
+            <div className={`h-1.5 w-full ${SUBJECT_ACCENTS[subject.id] || "bg-cyan-500"}`} />
             <div className="space-y-4 px-5 py-5">
               <div className="space-y-2">
                 <div className="flex items-center gap-3">

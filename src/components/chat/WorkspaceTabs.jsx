@@ -4,7 +4,7 @@ import { cx } from "../../utils/classNames";
 export default function WorkspaceTabs({ activeView, onChange }) {
   return (
     <div
-      className="ios-segmented grid w-full max-w-[360px] grid-cols-3 rounded-full p-1"
+      className="ios-segmented grid w-full max-w-[460px] grid-cols-4 rounded-full p-1"
       role="tablist"
       aria-label="Espacio de trabajo"
     >
@@ -20,12 +20,12 @@ export default function WorkspaceTabs({ activeView, onChange }) {
             aria-selected={isActive}
             onClick={() => onChange(tab.id)}
             className={cx(
-              "ios-segmented-button inline-flex items-center justify-center gap-2 px-3 py-2 text-xs font-semibold",
+              "ios-segmented-button inline-flex items-center justify-center gap-2 px-3 py-2 text-xs font-bold",
               isActive && "is-active"
             )}
           >
             <Icon className="h-3.5 w-3.5" aria-hidden="true" />
-            {tab.label}
+            <span className="workspace-tab-label">{tab.label}</span>
           </button>
         );
       })}

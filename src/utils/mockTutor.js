@@ -1,6 +1,7 @@
 const MODE_GUIDES = {
   easy: "Vamos paso a paso, con una sola idea a la vez y un ejemplo muy claro.",
-  hard: "Vamos a entender la idea y luego a justificar un poco mas la respuesta.",
+  medium: "Vamos a mantener claridad, pero conectando idea, ejemplo y una razon breve.",
+  detailed: "Vamos con mas contexto, porques utiles y una explicacion mas completa.",
 };
 
 const SUBJECT_EXAMPLES = {
@@ -66,8 +67,10 @@ export function buildLocalTutorReply({
     `Ejemplo: ${example}`,
     `Recuerda: ${modeGuide}`,
     `Tu turno: ${
-      modeName === "Dificil"
+      modeName === "Detallado"
         ? `Explicame por que ${focus} funciona asi en una o dos frases.`
+        : modeName === "Medio"
+          ? `Relaciona ${focus} con un ejemplo corto y dime por que sirve.`
         : `Explicame ${focus} con tus palabras o pideme un ejemplo mas corto.`
     }`,
   ].join("\n\n");
@@ -77,9 +80,11 @@ export function buildLocalExercises({ subject, topic, grade, mode, studentProfil
   const focus = getFocusLabel(topic, subject);
   const { gradeLabel } = getProfileLabels(studentProfile, grade, mode);
   const modeGuide =
-    mode === "hard"
-      ? "En el ultimo ejercicio pide justificar o detectar un error."
-      : "Las pistas deben sentirse cercanas y muy guiadas.";
+    mode === "detailed"
+      ? "En el ultimo ejercicio pide justificar, comparar o detectar un error."
+      : mode === "medium"
+        ? "En el ultimo ejercicio pide una razon breve o una conexion simple."
+        : "Las pistas deben sentirse cercanas y muy guiadas.";
 
   return {
     ejercicios: [
@@ -115,9 +120,11 @@ export function buildLocalQuiz({ subject, topic, grade, mode, studentProfile }) 
   const focus = getFocusLabel(topic, subject);
   const { gradeLabel } = getProfileLabels(studentProfile, grade, mode);
   const challengeLine =
-    mode === "hard"
+    mode === "detailed"
       ? "Elige la opcion que mejor justifica la idea."
-      : "Elige la opcion que muestra la idea mas clara.";
+      : mode === "medium"
+        ? "Elige la opcion que mejor conecta la idea con su uso."
+        : "Elige la opcion que muestra la idea mas clara.";
 
   return {
     preguntas: [

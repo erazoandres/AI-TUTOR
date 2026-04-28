@@ -1,4 +1,4 @@
-import { Loader2, Send } from "lucide-react";
+import { Lightbulb, Loader2, Send } from "lucide-react";
 import MessageBubble from "../MessageBubble";
 
 export default function ChatConversation({
@@ -12,30 +12,36 @@ export default function ChatConversation({
   followUpActions,
   lastAssistantIndex,
   scrollRef,
+  lastAssistantRef,
   onInputChange,
   onKeyDown,
   onSend,
 }) {
   return (
-    <section className="flex h-full min-h-0 flex-col overflow-hidden rounded-[24px] bg-[color:var(--surface-elevated)]">
-      <div ref={scrollRef} className="flex-1 overflow-y-auto px-3 py-3 sm:px-4">
+    <section className="flex h-full min-h-0 flex-col overflow-hidden rounded-2xl bg-[color:var(--surface-elevated)]">
+      <div ref={scrollRef} className="flex-1 overflow-y-auto px-3 py-2 sm:px-4">
         <div className="space-y-3">
           {messages.length === 0 && (
-            <div className="mx-auto max-w-[560px] space-y-3 pt-4">
-              <div className="rounded-[24px] bg-[color:var(--surface-strong)] px-4 py-3 text-center shadow-sm">
-                <p className="text-sm font-semibold">Vamos con {activeTopic || subject}</p>
-                <p className="mt-1 text-xs leading-5 text-[color:var(--text-secondary)]">
+            <div className="mx-auto max-w-[920px] space-y-4 pt-2">
+              <div className="ios-surface rounded-2xl px-5 py-5 text-center">
+                <div className="primary-action mx-auto inline-flex h-12 w-12 items-center justify-center rounded-full">
+                  <Lightbulb className="h-5 w-5" aria-hidden="true" />
+                </div>
+                <p className="display-font mt-4 text-2xl font-extrabold">
+                  Vamos con <span className="study-gradient-text">{activeTopic || subject}</span>
+                </p>
+                <p className="mx-auto mt-2 max-w-md text-sm leading-6 text-[color:var(--text-secondary)]">
                   {modeSummary || "Te explico claro y corto."}
                 </p>
               </div>
 
-              <div className="grid grid-cols-3 gap-2">
+              <div className="grid gap-2 sm:grid-cols-3">
                 {quickPrompts.map((prompt) => (
                   <button
                     key={prompt.label}
                     type="button"
                     onClick={() => onSend(prompt.prompt)}
-                    className="ios-surface-muted min-w-0 rounded-[20px] px-3 py-3 text-center text-xs font-semibold text-[color:var(--text-primary)] transition hover:scale-[1.01]"
+                    className="ios-surface-muted hover-lift min-w-0 rounded-2xl px-4 py-4 text-center text-xs font-bold text-[color:var(--text-primary)] transition"
                   >
                     <span className="block truncate">{prompt.label}</span>
                   </button>
@@ -50,18 +56,20 @@ export default function ChatConversation({
               role={message.role}
               content={message.content}
               index={index}
+              isLatestAssistant={message.role === "assistant" && index === lastAssistantIndex}
               actions={
                 message.role === "assistant" && index === lastAssistantIndex
                   ? followUpActions
                   : []
               }
+              anchorRef={message.role === "assistant" && index === lastAssistantIndex ? lastAssistantRef : null}
               onAction={onSend}
             />
           ))}
 
           {loading && (
             <div
-              className="inline-flex items-center gap-2 rounded-full px-3 py-2 text-sm ios-chip"
+              className="inline-flex items-center gap-2 rounded-full px-3 py-2 text-sm font-semibold ios-chip"
               role="status"
               aria-live="polite"
             >
@@ -72,8 +80,8 @@ export default function ChatConversation({
         </div>
       </div>
 
-      <div className="border-t border-[color:var(--line)] bg-[color:var(--surface-card)] px-3 py-3">
-        <div className="rounded-[24px] bg-[color:var(--surface-strong)] p-2">
+      <div className="border-t border-[color:var(--line)] bg-[color:var(--surface-card)] px-3 py-2">
+        <div className="rounded-2xl border border-[color:var(--line)] bg-[color:var(--surface-strong)] p-2 shadow-[var(--shadow-soft)]">
           <div className="flex items-end gap-2">
             <textarea
               value={input}
@@ -91,7 +99,7 @@ export default function ChatConversation({
               aria-label="Enviar pregunta"
               onClick={() => onSend()}
               disabled={loading || !input.trim()}
-              className="inline-flex h-11 w-11 shrink-0 items-center justify-center rounded-full bg-[color:var(--accent)] text-white shadow-sm transition hover:translate-y-[-1px] disabled:opacity-45"
+              className="primary-action inline-flex h-11 w-11 shrink-0 items-center justify-center rounded-full transition disabled:opacity-45"
             >
               <Send className="h-4.5 w-4.5" aria-hidden="true" />
             </button>

@@ -97,7 +97,7 @@ export const MODES = [
     id: "easy",
     name: "Facil",
     shortLabel: "Paso a paso",
-    summary: "Mas guia, menos carga por turno y ejemplos mas amables.",
+    summary: "Mas guia, menos carga por turno y ejemplos muy cercanos.",
     prompt:
       "Divide la explicacion en pasos pequenos, evita saltos y confirma la idea con un ejemplo sencillo.",
     practice:
@@ -106,16 +106,28 @@ export const MODES = [
       "Mantener opciones claras y explicaciones muy transparentes.",
   },
   {
-    id: "hard",
-    name: "Dificil",
-    shortLabel: "Reto guiado",
-    summary: "Mas profundidad, mas porques y preguntas que hagan pensar.",
+    id: "medium",
+    name: "Medio",
+    shortLabel: "Equilibrado",
+    summary: "Mantiene claridad, pero ya conecta ideas y pide pensar un poco mas.",
     prompt:
-      "Mantener claridad, pero pedir comparaciones, justificacion breve y un cierre un poco mas retador.",
+      "Mantener claridad, sumar un porque breve y relacionar concepto, ejemplo y resultado sin sobrecargar.",
     practice:
-      "Sube el reto con aplicacion, justificacion y correccion de errores frecuentes.",
+      "Combina una parte guiada con aplicacion corta y una justificacion simple cuando haga falta.",
     quiz:
-      "Usa distractores plausibles y exige comprension real, no memoria literal.",
+      "Usa distractores plausibles y exige comprension real sin volverlo pesado.",
+  },
+  {
+    id: "detailed",
+    name: "Detallado",
+    shortLabel: "Mas contexto",
+    summary: "Da mas profundidad, explica porques y deja cierres mas completos.",
+    prompt:
+      "Responde con mas contexto, explica por que funciona la idea y agrega una conexion o matiz util cuando aporte claridad.",
+    practice:
+      "Plantea ejercicios con aplicacion, criterio, revision de errores y una breve justificacion del procedimiento.",
+    quiz:
+      "Evalua comprension profunda con opciones creibles y explicaciones un poco mas completas.",
   },
 ];
 
@@ -124,7 +136,8 @@ export function getGradeById(id) {
 }
 
 export function getModeById(id) {
-  return MODES.find((mode) => mode.id === id) || null;
+  const normalizedId = id === "hard" ? "detailed" : id;
+  return MODES.find((mode) => mode.id === normalizedId) || null;
 }
 
 export function buildStudentProfile(gradeId, modeId) {
@@ -142,10 +155,14 @@ export function buildStudentProfile(gradeId, modeId) {
     quickPrompt:
       mode.id === "easy"
         ? `Explica paso a paso y con ejemplos claros para ${grade.longLabel}.`
-        : `Explica con claridad, pero agrega un pequeno reto para ${grade.longLabel}.`,
+        : mode.id === "medium"
+          ? `Explica con claridad y conecta idea, ejemplo y resultado para ${grade.longLabel}.`
+          : `Explica con mas detalle, contexto y porques utiles para ${grade.longLabel}.`,
     practiceHint:
       mode.id === "easy"
         ? "Primero entender, luego practicar con apoyo."
-        : "Entender, aplicar y justificar en pocas lineas.",
+        : mode.id === "medium"
+          ? "Entender, aplicar y justificar lo justo."
+          : "Entender, conectar ideas y justificar con mas criterio.",
   };
 }

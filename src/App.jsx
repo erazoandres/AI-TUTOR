@@ -8,6 +8,11 @@ import { useTheme } from "./hooks/useTheme";
 import { buildStudentProfile, getGradeById, getModeById, GRADES, MODES } from "./utils/studentProfile";
 import { SUBJECTS } from "./utils/subjects";
 
+// DESIGN SYSTEM
+// Paleta: primario #2F5BFF, acento #00C9A7, coral #FF6B6B sobre fondo #EEF6FF.
+// Tipografia: display -> Syne, body -> Plus Jakarta Sans / Outfit.
+// Feeling: tutor digital colorido, claro y concentrado para sesiones escolares.
+
 const SESSION_STORAGE_KEY = "tutoria_session";
 const DEFAULT_SESSION = {
   subject: SUBJECTS[0]?.name || "",

@@ -239,7 +239,7 @@ export default function ProgressMap() {
                 className="ios-surface hover-lift animate-fade-up overflow-hidden rounded-lg"
                 style={{ animationDelay: `${index * 50}ms` }}
               >
-                <div className={`h-1.5 w-full ${SUBJECT_BARS[subject.id] || "bg-blue-500"}`} />
+                <div className={`h-1.5 w-full ${SUBJECT_BARS[subject.id] || "bg-cyan-500"}`} />
                 <div className="px-5 py-5">
                   <button
                     type="button"
@@ -281,7 +281,7 @@ export default function ProgressMap() {
 
                   <div className="mt-4 h-2 overflow-hidden rounded-full bg-[color:var(--surface-muted)]">
                     <div
-                      className={`h-full rounded-full ${SUBJECT_BARS[subject.id] || "bg-blue-500"} transition-all duration-500`}
+                      className={`h-full rounded-full ${SUBJECT_BARS[subject.id] || "bg-cyan-500"} transition-all duration-500`}
                       style={{ width: `${subject.percentage}%` }}
                     />
                   </div>

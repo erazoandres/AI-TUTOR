@@ -3,6 +3,7 @@ import ChatConversation from "./chat/ChatConversation";
 import ChatHeader from "./chat/ChatHeader";
 import PracticeWorkspace from "./chat/PracticeWorkspace";
 import TopicsWorkspace from "./chat/TopicsWorkspace";
+import ProgressMap from "./ProgressMap";
 import { useGroqAPI } from "../hooks/useGroqAPI";
 import { useProgress } from "../hooks/useProgress";
 import { findTopicMatch, getSubjectByName } from "../utils/subjects";
@@ -74,6 +75,7 @@ export default function Chat({ subject, grade, mode, studentProfile, onBackToSet
   );
 
   const scrollRef = useRef(null);
+  const lastAssistantRef = useRef(null);
   const subjectMeta = useMemo(() => getSubjectByName(subject, grade), [grade, subject]);
   const subjectTopics = subjectMeta?.topics || [];
   const gradeLabel = studentProfile?.grade?.longLabel || "este grado";
@@ -111,6 +113,8 @@ export default function Chat({ subject, grade, mode, studentProfile, onBackToSet
     .map((message, index) => (message.role === "assistant" ? index : -1))
     .filter((index) => index >= 0)
     .pop();
+  const isEasyMode = mode === "easy";
+  const isMediumMode = mode === "medium";
 
   const quickPrompts = useMemo(() => {
     const focus = activeTopic || subject;
@@ -125,21 +129,23 @@ export default function Chat({ subject, grade, mode, studentProfile, onBackToSet
         prompt: `Dame un ejemplo corto de ${focus} para ${gradeLabel}.`,
       },
       {
-        label: mode === "easy" ? "Pregunta" : "Reto",
+        label: isEasyMode ? "Pregunta" : isMediumMode ? "Aplicacion" : "Reto",
         prompt:
-          mode === "easy"
+          isEasyMode
             ? `Hazme una pregunta facil de ${focus}.`
-            : `Hazme una pregunta retadora de ${focus}.`,
+            : isMediumMode
+              ? `Hazme una pregunta de aplicacion simple sobre ${focus}.`
+              : `Hazme una pregunta retadora y un poco mas profunda sobre ${focus}.`,
       },
     ];
-  }, [activeTopic, gradeLabel, mode, modeName, subject]);
+  }, [activeTopic, gradeLabel, isEasyMode, isMediumMode, modeName, subject]);
 
   const followUpActions = useMemo(() => {
     const focus = activeTopic || subject;
 
     return [
       {
-        label: mode === "easy" ? "Mas simple" : "Mas claro",
+        label: isEasyMode ? "Mas simple" : isMediumMode ? "Mas claro" : "Mas breve",
         prompt: `Explicamelo mejor para ${gradeLabel}, sobre ${focus}, con lenguaje mas simple.`,
       },
       {
@@ -147,14 +153,16 @@ export default function Chat({ subject, grade, mode, studentProfile, onBackToSet
         prompt: `Dame otro ejemplo corto de ${focus} para ${gradeLabel}.`,
       },
       {
-        label: mode === "easy" ? "Mini reto" : "Sube reto",
+        label: isEasyMode ? "Mini reto" : isMediumMode ? "Conecta ideas" : "Sube reto",
         prompt:
-          mode === "easy"
+          isEasyMode
             ? `Ponme un mini reto de una sola pregunta sobre ${focus} para ${gradeLabel}.`
-            : `Ponme una sola pregunta un poco mas dificil sobre ${focus} para ${gradeLabel}.`,
+            : isMediumMode
+              ? `Hazme conectar ${focus} con un ejemplo y una razon breve para ${gradeLabel}.`
+              : `Ponme una sola pregunta un poco mas dificil sobre ${focus} para ${gradeLabel}.`,
       },
     ];
-  }, [activeTopic, gradeLabel, mode, subject]);
+  }, [activeTopic, gradeLabel, isEasyMode, isMediumMode, subject]);
 
   useEffect(() => {
     if (typeof window === "undefined") {
@@ -185,15 +193,22 @@ export default function Chat({ subject, grade, mode, studentProfile, onBackToSet
   ]);
 
   useEffect(() => {
-    if (!scrollRef.current) {
+    const latestMessage = messages[messages.length - 1];
+    if (!latestMessage) {
       return;
     }
 
-    scrollRef.current.scrollTo({
-      top: scrollRef.current.scrollHeight,
-      behavior: "smooth",
-    });
-  }, [messages, loading]);
+    const prefersReducedMotion =
+      typeof window !== "undefined" &&
+      window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+
+    if (latestMessage.role === "assistant" && lastAssistantRef.current) {
+      lastAssistantRef.current.scrollIntoView({
+        block: "start",
+        behavior: prefersReducedMotion ? "auto" : "smooth",
+      });
+    }
+  }, [messages]);
 
   const markTopicAsSeen = (topicName) => {
     if (topicName && getTopicStatus(subject, topicName) === "pendiente") {
@@ -335,9 +350,10 @@ export default function Chat({ subject, grade, mode, studentProfile, onBackToSet
 
   const hasExercises = exercises.length > 0;
   const hasQuiz = quiz.length > 0;
+  const hasStartedConversation = messages.length > 0;
 
   return (
-    <div className="ios-surface flex h-full min-h-0 flex-col overflow-hidden rounded-[28px]">
+    <div className="ios-surface animate-fade-up flex h-full min-h-0 flex-col overflow-hidden rounded-2xl">
       <ChatHeader
         subject={subject}
         gradeLabel={gradeLabel}
@@ -349,13 +365,14 @@ export default function Chat({ subject, grade, mode, studentProfile, onBackToSet
         error={error}
         hasApiKey={hasApiKey}
         model={model}
+        isCondensed={hasStartedConversation}
         onOpenTopics={() => setWorkspaceView("topics")}
         onReset={handleResetWorkspace}
         onBackToSetup={onBackToSetup}
         onWorkspaceViewChange={setWorkspaceView}
       />
 
-      <div className="min-h-0 flex-1 px-4 py-4">
+      <div className="min-h-0 flex-1 px-2 py-2 sm:px-3 sm:py-3">
         {workspaceView === "chat" && (
           <ChatConversation
             messages={messages}
@@ -368,6 +385,7 @@ export default function Chat({ subject, grade, mode, studentProfile, onBackToSet
             followUpActions={followUpActions}
             lastAssistantIndex={lastAssistantIndex}
             scrollRef={scrollRef}
+            lastAssistantRef={lastAssistantRef}
             onInputChange={setInput}
             onKeyDown={handleKeyDown}
             onSend={handleSend}
@@ -404,6 +422,12 @@ export default function Chat({ subject, grade, mode, studentProfile, onBackToSet
             onTopicSelect={handleTopicSelect}
             onUpdateTopic={updateTopic}
           />
+        )}
+
+        {workspaceView === "progress" && (
+          <div className="h-full min-h-0 overflow-y-auto pr-1">
+            <ProgressMap />
+          </div>
         )}
       </div>
     </div>

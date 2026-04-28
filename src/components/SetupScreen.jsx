@@ -1,9 +1,9 @@
-import { useMemo, useState } from "react";
+import { useState } from "react";
 import BrandPill from "./layout/BrandPill";
 import SetupFooter from "./setup/SetupFooter";
 import SetupSidebar from "./setup/SetupSidebar";
 import SetupStepOptions from "./setup/SetupStepOptions";
-import { MODE_ACCENTS, SETUP_STEPS } from "./setup/setupConstants";
+import { SETUP_STEPS } from "./setup/setupConstants";
 import ThemeSwitch from "./ThemeSwitch";
 
 export default function SetupScreen({
@@ -23,22 +23,6 @@ export default function SetupScreen({
   const [activeStep, setActiveStep] = useState(0);
   const step = SETUP_STEPS[activeStep] || SETUP_STEPS[0];
   const isLastStep = activeStep === SETUP_STEPS.length - 1;
-  const modeAccent = MODE_ACCENTS[selectedMode.id] || MODE_ACCENTS.easy;
-
-  const selectionChips = useMemo(
-    () => [
-      { key: "subject", value: selectedSubject.name, tone: selectedSubject.meta.badge },
-      { key: "grade", value: selectedGrade.longLabel, tone: "ios-chip" },
-      { key: "mode", value: selectedMode.name, tone: modeAccent.badge },
-    ],
-    [
-      modeAccent.badge,
-      selectedGrade.longLabel,
-      selectedMode.name,
-      selectedSubject.meta.badge,
-      selectedSubject.name,
-    ]
-  );
 
   const goPrev = () => setActiveStep((current) => Math.max(current - 1, 0));
   const goNext = () => setActiveStep((current) => Math.min(current + 1, SETUP_STEPS.length - 1));
@@ -54,25 +38,35 @@ export default function SetupScreen({
   };
 
   return (
-    <div className="mx-auto flex h-full max-w-[1020px] items-center justify-center px-3 py-3">
-      <section className="ios-surface grid h-full max-h-full min-h-0 w-full grid-rows-[auto_minmax(0,1fr)] rounded-[30px] px-4 py-4 sm:px-5 sm:py-5">
+    <div className="mx-auto flex h-full max-w-[1280px] items-center justify-center px-2 py-2 sm:px-3 sm:py-3">
+      <section className="ios-surface animate-fade-up grid h-full max-h-full min-h-0 w-full grid-rows-[auto_minmax(0,1fr)] rounded-2xl px-3 py-3 sm:px-4 sm:py-4">
         <header className="flex items-center justify-between gap-3">
           <BrandPill />
           <ThemeSwitch checked={isDark} onToggle={onToggleTheme} />
         </header>
 
-        <div className="mt-4 grid min-h-0 gap-4 lg:grid-cols-[220px_minmax(0,1fr)]">
+        <div className="mt-2 grid min-h-0 gap-3 lg:grid-cols-[300px_minmax(0,1fr)]">
           <SetupSidebar
             activeStep={activeStep}
             step={step}
-            selectedSubject={selectedSubject}
-            selectedGrade={selectedGrade}
-            selectedMode={selectedMode}
-            selectionChips={selectionChips}
           />
 
-          <div className="grid min-h-0 grid-rows-[minmax(0,1fr)_auto] rounded-[26px] border border-[color:var(--line)] bg-[color:var(--surface-strong)] px-3 py-3 dark:bg-slate-950/24 sm:px-4 sm:py-4">
-            <div className="min-h-0 overflow-y-auto pr-1">
+          <div className="grid min-h-0 grid-rows-[auto_minmax(0,1fr)_auto] rounded-2xl border border-[color:var(--line)] bg-[color:var(--surface-strong)] px-3 py-3 shadow-[var(--shadow-soft)] dark:bg-[color:var(--surface-strong)] sm:px-3.5 sm:py-3.5">
+            <div className="mb-2 grid gap-1.5 lg:grid-cols-[minmax(0,1fr)_260px] lg:items-end">
+              <div>
+                <p className="text-[11px] font-bold uppercase tracking-[0.08em] text-[color:var(--accent-strong)]">
+                  Paso {activeStep + 1}
+                </p>
+                <h2 className="display-font mt-1 text-[1.8rem] font-extrabold leading-[0.95] sm:text-[2.15rem]">
+                  {step.title}
+                </h2>
+              </div>
+              <p className="max-w-[28ch] text-[13px] leading-5 text-[color:var(--text-secondary)] lg:justify-self-end">
+                {step.hint}
+              </p>
+            </div>
+
+            <div className="min-h-0 overflow-hidden">
               <SetupStepOptions
                 step={step}
                 subjectCards={subjectCards}
