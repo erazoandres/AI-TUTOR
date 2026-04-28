@@ -408,6 +408,17 @@ a:focus-visible {
     transform 320ms cubic-bezier(0.16, 1, 0.3, 1);
 }
 
+.chat-header-toggle {
+  box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.22);
+}
+
+.chat-header-toggle.is-collapsed {
+  background: var(--accent-soft);
+  border-color: transparent;
+  color: var(--accent-strong);
+  box-shadow: 0 16px 36px -24px rgba(var(--color-primary-rgb), 0.85);
+}
+
 .chat-header-shell.is-condensed {
   padding-top: 0.625rem;
   padding-bottom: 0.625rem;
@@ -458,12 +469,23 @@ a:focus-visible {
 .formatted-content {
   display: flex;
   flex-direction: column;
-  gap: 0.75rem;
+  gap: 0.65rem;
+}
+
+.assistant-message-card {
+  width: min(100%, 1040px);
+  margin-right: auto;
+}
+
+.formatted-content.is-callout-sequence {
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: 0.65rem;
 }
 
 .formatted-content p {
   margin: 0;
-  line-height: 1.65;
+  line-height: 1.6;
 }
 
 .formatted-reveal-block {
@@ -475,8 +497,9 @@ a:focus-visible {
 
 .formatted-callout {
   border: 1px solid var(--line);
-  border-radius: 12px;
-  padding: 0.9rem 1rem;
+  border-radius: 14px;
+  padding: 0.8rem 0.9rem;
+  box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.2);
 }
 
 .formatted-callout-primary {
@@ -497,8 +520,8 @@ a:focus-visible {
 
 .formatted-callout-label {
   display: inline-flex;
-  margin-bottom: 0.35rem;
-  font-size: 0.76rem;
+  margin-bottom: 0.28rem;
+  font-size: 0.7rem;
   font-weight: 700;
   letter-spacing: 0.04em;
   text-transform: uppercase;
@@ -507,15 +530,15 @@ a:focus-visible {
 
 .formatted-callout-text {
   margin: 0;
-  line-height: 1.75;
+  line-height: 1.6;
 }
 
 .formatted-row {
   display: grid;
   grid-template-columns: auto 1fr;
-  gap: 0.75rem;
+  gap: 0.65rem;
   align-items: start;
-  line-height: 1.8;
+  line-height: 1.65;
 }
 
 .formatted-index {
@@ -534,9 +557,20 @@ a:focus-visible {
 .formatted-dot {
   width: 0.55rem;
   height: 0.55rem;
-  margin-top: 0.6rem;
+  margin-top: 0.52rem;
   border-radius: 999px;
   background: linear-gradient(135deg, var(--color-primary), var(--color-accent));
+}
+
+.assistant-actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.45rem;
+}
+
+.assistant-actions .control-button {
+  min-height: 36px;
+  padding: 0.5rem 0.8rem;
 }
 
 .hover-lift:hover {
@@ -624,6 +658,36 @@ a:focus-visible {
 @media (max-width: 1024px) {
   .assistant-message-reveal {
     animation-duration: 380ms;
+  }
+}
+
+@media (min-width: 900px) {
+  .formatted-content.is-callout-sequence {
+    grid-template-columns: repeat(12, minmax(0, 1fr));
+    align-items: start;
+  }
+
+  .formatted-content.is-callout-sequence .formatted-callout.is-sequence-item {
+    grid-column: span 6;
+  }
+
+  .formatted-content.is-callout-sequence .formatted-callout-warning.is-sequence-item,
+  .formatted-content.is-callout-sequence .formatted-callout-neutral.is-sequence-item {
+    grid-column: 1 / -1;
+  }
+}
+
+@media (max-width: 640px) {
+  .assistant-message-card {
+    width: 100%;
+  }
+
+  .formatted-callout {
+    padding: 0.72rem 0.8rem;
+  }
+
+  .formatted-callout-label {
+    font-size: 0.68rem;
   }
 }
 

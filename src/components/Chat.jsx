@@ -6,6 +6,7 @@ import TopicsWorkspace from "./chat/TopicsWorkspace";
 import ProgressMap from "./ProgressMap";
 import { useGroqAPI } from "../hooks/useGroqAPI";
 import { useProgress } from "../hooks/useProgress";
+import { extractIdeaContext, extractTurnPrompt } from "../utils/chatTurnContext";
 import { findTopicMatch, getSubjectByName } from "../utils/subjects";
 
 const CHAT_STORAGE_PREFIX = "tutoria_chat";
@@ -73,6 +74,8 @@ export default function Chat({ subject, grade, mode, studentProfile, onBackToSet
   const [practiceView, setPracticeView] = useState(
     storedState.quiz?.length ? "quiz" : "exercises"
   );
+  const [isHeaderExpanded, setIsHeaderExpanded] = useState(() => storedState.messages.length === 0);
+  const [turnReplyMode, setTurnReplyMode] = useState("review");
 
   const scrollRef = useRef(null);
   const lastAssistantRef = useRef(null);
@@ -108,6 +111,9 @@ export default function Chat({ subject, grade, mode, studentProfile, onBackToSet
   }, [grade, input, messages, subject]);
 
   const activeTopic = selectedTopic || inferredTopic || subjectTopics[0] || "";
+  const latestAssistantMessage = [...messages].reverse().find((message) => message.role === "assistant");
+  const latestTurnPrompt = extractTurnPrompt(latestAssistantMessage?.content || "");
+  const latestIdeaContext = extractIdeaContext(latestAssistantMessage?.content || "");
   const currentTopicStatus = activeTopic ? getTopicStatus(subject, activeTopic) : "pendiente";
   const lastAssistantIndex = [...messages]
     .map((message, index) => (message.role === "assistant" ? index : -1))
@@ -122,15 +128,18 @@ export default function Chat({ subject, grade, mode, studentProfile, onBackToSet
     return [
       {
         label: "Explicamelo",
-        prompt: `Explicame ${focus} para ${gradeLabel} en modo ${modeName.toLowerCase()}.`,
+        userFacingContent: "Explicamelo",
+        requestContent: `Explicame ${focus} para ${gradeLabel} en modo ${modeName.toLowerCase()}.`,
       },
       {
         label: "Ejemplo",
-        prompt: `Dame un ejemplo corto de ${focus} para ${gradeLabel}.`,
+        userFacingContent: "Ejemplo",
+        requestContent: `Dame un ejemplo corto de ${focus} para ${gradeLabel}.`,
       },
       {
         label: isEasyMode ? "Pregunta" : isMediumMode ? "Aplicacion" : "Reto",
-        prompt:
+        userFacingContent: isEasyMode ? "Pregunta" : isMediumMode ? "Aplicacion" : "Reto",
+        requestContent:
           isEasyMode
             ? `Hazme una pregunta facil de ${focus}.`
             : isMediumMode
@@ -142,27 +151,35 @@ export default function Chat({ subject, grade, mode, studentProfile, onBackToSet
 
   const followUpActions = useMemo(() => {
     const focus = activeTopic || subject;
+    const sameThemeContext = latestTurnPrompt
+      ? `Mantente en la misma idea de esta pregunta del tutor: "${latestTurnPrompt}".`
+      : latestIdeaContext
+        ? `Mantente en esta misma idea: "${latestIdeaContext}".`
+        : `Mantente en el tema ${focus}.`;
 
     return [
       {
         label: isEasyMode ? "Mas simple" : isMediumMode ? "Mas claro" : "Mas breve",
-        prompt: `Explicamelo mejor para ${gradeLabel}, sobre ${focus}, con lenguaje mas simple.`,
+        userFacingContent: isEasyMode ? "Mas simple" : isMediumMode ? "Mas claro" : "Mas breve",
+        requestContent: `Explicamelo mejor para ${gradeLabel}, sobre ${focus}, con lenguaje mas simple. ${sameThemeContext} Ayudame a responder sin cambiar de tema.`,
       },
       {
         label: "Otro ejemplo",
-        prompt: `Dame otro ejemplo corto de ${focus} para ${gradeLabel}.`,
+        userFacingContent: "Otro ejemplo",
+        requestContent: `Dame otro ejemplo corto de ${focus} para ${gradeLabel}. ${sameThemeContext}`,
       },
       {
         label: isEasyMode ? "Mini reto" : isMediumMode ? "Conecta ideas" : "Sube reto",
-        prompt:
+        userFacingContent: isEasyMode ? "Mini reto" : isMediumMode ? "Conecta ideas" : "Sube reto",
+        requestContent:
           isEasyMode
-            ? `Ponme un mini reto de una sola pregunta sobre ${focus} para ${gradeLabel}.`
+            ? `Ponme un mini reto de una sola pregunta sobre ${focus} para ${gradeLabel}. ${sameThemeContext}`
             : isMediumMode
-              ? `Hazme conectar ${focus} con un ejemplo y una razon breve para ${gradeLabel}.`
-              : `Ponme una sola pregunta un poco mas dificil sobre ${focus} para ${gradeLabel}.`,
+              ? `Hazme conectar ${focus} con un ejemplo y una razon breve para ${gradeLabel}. ${sameThemeContext}`
+              : `Ponme una sola pregunta un poco mas dificil sobre ${focus} para ${gradeLabel}. ${sameThemeContext}`,
       },
     ];
-  }, [activeTopic, gradeLabel, isEasyMode, isMediumMode, subject]);
+  }, [activeTopic, gradeLabel, isEasyMode, isMediumMode, latestIdeaContext, latestTurnPrompt, subject]);
 
   useEffect(() => {
     if (typeof window === "undefined") {
@@ -217,18 +234,51 @@ export default function Chat({ subject, grade, mode, studentProfile, onBackToSet
   };
 
   const handleSend = async (customInput) => {
-    const textToSend = (customInput ?? input).trim();
-    if (!textToSend || loading) {
+    const usesStructuredInput = customInput && typeof customInput === "object";
+    const payload =
+      typeof customInput === "string"
+        ? {
+            userFacingContent: customInput,
+            requestContent: customInput,
+          }
+        : customInput && typeof customInput === "object"
+          ? {
+              userFacingContent: customInput.userFacingContent ?? customInput.requestContent ?? "",
+              requestContent: customInput.requestContent ?? customInput.userFacingContent ?? "",
+            }
+          : {
+              userFacingContent: input,
+              requestContent: input,
+            };
+
+    const userFacingContent = String(payload.userFacingContent || "").trim();
+    const requestContent = String(payload.requestContent || "").trim();
+
+    if (!userFacingContent || !requestContent || loading) {
       return;
     }
 
-    const detectedTopic = findTopicMatch(subject, textToSend, grade);
+    const toneInstruction =
+      turnReplyMode === "guided"
+        ? "Si mi respuesta esta incompleta o tiene un error, corrigeme paso a paso y dame una pista antes de la respuesta final."
+        : "Dime si mi respuesta esta bien, si esta cerca o si tiene un error, y explicame por que de forma breve.";
+    const contextInstruction = latestIdeaContext
+      ? `La idea central actual es: "${latestIdeaContext}".`
+      : "";
+    const finalRequestContent =
+      !usesStructuredInput && latestTurnPrompt
+        ? `Estoy respondiendo a tu "Tu turno". La pregunta fue: "${latestTurnPrompt}". ${contextInstruction} Mi respuesta es: "${requestContent}". ${toneInstruction} Mantente en este mismo tema para ${gradeLabel} y en modo ${modeName}.`
+        : requestContent;
+
+    const detectedTopic = findTopicMatch(subject, finalRequestContent, grade);
     const topicForTurn = selectedTopic || detectedTopic || activeTopic;
-    const userMessage = { role: "user", content: textToSend };
-    const newMessages = [...messages, userMessage];
+    const userMessage = { role: "user", content: userFacingContent };
+    const requestMessage = { role: "user", content: finalRequestContent };
+    const renderedMessages = [...messages, userMessage];
+    const requestMessages = [...messages, requestMessage];
 
     setWorkspaceView("chat");
-    setMessages(newMessages);
+    setMessages(renderedMessages);
     setInput("");
     setNotice("");
 
@@ -243,7 +293,7 @@ export default function Chat({ subject, grade, mode, studentProfile, onBackToSet
     markTopicAsSeen(topicForTurn);
 
     const response = await sendMessage({
-      messages: newMessages,
+      messages: requestMessages,
       subject,
       grade,
       mode,
@@ -252,7 +302,7 @@ export default function Chat({ subject, grade, mode, studentProfile, onBackToSet
     });
 
     if (response) {
-      setMessages([...newMessages, { role: "assistant", content: response }]);
+      setMessages([...renderedMessages, { role: "assistant", content: response }]);
     }
   };
 
@@ -345,12 +395,36 @@ export default function Chat({ subject, grade, mode, studentProfile, onBackToSet
     setSelectedTopic("");
     setWorkspaceView("chat");
     setPracticeView("exercises");
+    setIsHeaderExpanded(true);
+    setTurnReplyMode("review");
     clearError();
+  };
+
+  const handleRequestHint = () => {
+    if (!latestTurnPrompt) {
+      return;
+    }
+
+    const contextInstruction = latestIdeaContext
+      ? `La idea central actual es: "${latestIdeaContext}".`
+      : "";
+
+    handleSend({
+      userFacingContent: "Necesito una pista",
+      requestContent: `Sin cambiar de tema, dame una pista breve para responder esta pregunta del tutor: "${latestTurnPrompt}". ${contextInstruction} No me des toda la solucion de una vez.`,
+    });
   };
 
   const hasExercises = exercises.length > 0;
   const hasQuiz = quiz.length > 0;
   const hasStartedConversation = messages.length > 0;
+  const isHeaderCondensed = hasStartedConversation && !isHeaderExpanded;
+
+  useEffect(() => {
+    if (messages.length === 1) {
+      setIsHeaderExpanded(false);
+    }
+  }, [messages.length]);
 
   return (
     <div className="ios-surface animate-fade-up flex h-full min-h-0 flex-col overflow-hidden rounded-2xl">
@@ -365,7 +439,10 @@ export default function Chat({ subject, grade, mode, studentProfile, onBackToSet
         error={error}
         hasApiKey={hasApiKey}
         model={model}
-        isCondensed={hasStartedConversation}
+        isCondensed={isHeaderCondensed}
+        canToggleOverview={hasStartedConversation}
+        isOverviewExpanded={isHeaderExpanded}
+        onToggleOverview={() => setIsHeaderExpanded((current) => !current)}
         onOpenTopics={() => setWorkspaceView("topics")}
         onReset={handleResetWorkspace}
         onBackToSetup={onBackToSetup}
@@ -386,6 +463,10 @@ export default function Chat({ subject, grade, mode, studentProfile, onBackToSet
             lastAssistantIndex={lastAssistantIndex}
             scrollRef={scrollRef}
             lastAssistantRef={lastAssistantRef}
+            turnPrompt={latestTurnPrompt}
+            turnReplyMode={turnReplyMode}
+            onTurnReplyModeChange={setTurnReplyMode}
+            onRequestHint={handleRequestHint}
             onInputChange={setInput}
             onKeyDown={handleKeyDown}
             onSend={handleSend}

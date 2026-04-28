@@ -1,4 +1,4 @@
-import { ArrowLeft, RefreshCcw, Sparkles } from "lucide-react";
+import { ArrowLeft, ChevronDown, ChevronUp, RefreshCcw, Sparkles } from "lucide-react";
 import WorkspaceTabs from "./WorkspaceTabs";
 import { STATUS_BADGES, TOPIC_STATUS_LABELS } from "./chatConstants";
 import { cx } from "../../utils/classNames";
@@ -15,6 +15,9 @@ export default function ChatHeader({
   hasApiKey,
   model,
   isCondensed = false,
+  canToggleOverview = false,
+  isOverviewExpanded = true,
+  onToggleOverview,
   onOpenTopics,
   onReset,
   onBackToSetup,
@@ -88,30 +91,50 @@ export default function ChatHeader({
       <div className="chat-header-toolbar mt-3 flex flex-wrap items-center justify-between gap-3">
         <WorkspaceTabs activeView={workspaceView} onChange={onWorkspaceViewChange} />
 
-        {(notice || error || !hasApiKey) && (
-          <div className="flex flex-wrap gap-2" aria-live="polite">
-            {!hasApiKey && (
-              <div className="rounded-full bg-[color:var(--warning-soft)] px-3 py-2 text-xs font-bold text-[color:var(--text-primary)]">
-                Modo local
-              </div>
-            )}
-            {hasApiKey && (
-              <div className="rounded-full bg-[color:var(--accent-soft)] px-3 py-2 text-xs font-bold text-[color:var(--text-primary)]">
-                {model}
-              </div>
-            )}
-            {notice && (
-              <div className="rounded-full bg-[color:var(--accent-soft)] px-3 py-2 text-xs font-bold text-[color:var(--text-primary)]">
-                {notice}
-              </div>
-            )}
-            {error && (
-              <div className="rounded-full bg-[color:var(--danger-soft)] px-3 py-2 text-xs font-bold text-[color:var(--text-primary)]">
-                {error}
-              </div>
-            )}
-          </div>
-        )}
+        <div className="flex flex-wrap items-center justify-end gap-2" aria-live="polite">
+          {canToggleOverview && (
+            <button
+              type="button"
+              onClick={onToggleOverview}
+              className={cx(
+                "chat-header-toggle ios-surface-muted control-button inline-flex items-center gap-2 rounded-full px-3 py-2 text-xs font-bold transition",
+                !isOverviewExpanded && "is-collapsed"
+              )}
+            >
+              {isOverviewExpanded ? (
+                <ChevronUp className="h-3.5 w-3.5" aria-hidden="true" />
+              ) : (
+                <ChevronDown className="h-3.5 w-3.5" aria-hidden="true" />
+              )}
+              {isOverviewExpanded ? "Ocultar panel" : "Mostrar panel"}
+            </button>
+          )}
+
+          {(notice || error || !hasApiKey) && (
+            <>
+              {!hasApiKey && (
+                <div className="rounded-full bg-[color:var(--warning-soft)] px-3 py-2 text-xs font-bold text-[color:var(--text-primary)]">
+                  Modo local
+                </div>
+              )}
+              {hasApiKey && (
+                <div className="rounded-full bg-[color:var(--accent-soft)] px-3 py-2 text-xs font-bold text-[color:var(--text-primary)]">
+                  {model}
+                </div>
+              )}
+              {notice && (
+                <div className="rounded-full bg-[color:var(--accent-soft)] px-3 py-2 text-xs font-bold text-[color:var(--text-primary)]">
+                  {notice}
+                </div>
+              )}
+              {error && (
+                <div className="rounded-full bg-[color:var(--danger-soft)] px-3 py-2 text-xs font-bold text-[color:var(--text-primary)]">
+                  {error}
+                </div>
+              )}
+            </>
+          )}
+        </div>
       </div>
     </header>
   );

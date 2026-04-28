@@ -201,15 +201,19 @@ function parseBlocks(content) {
 export default function FormattedContent({ content, animated = false }) {
   const blocks = parseBlocks(content);
   const revealClass = animated ? "formatted-reveal-block" : "";
+  const isCalloutSequence =
+    blocks.length > 1 && blocks.every((block) => block.type === "callout");
 
   return (
-    <div className="formatted-content">
+    <div className={`formatted-content ${isCalloutSequence ? "is-callout-sequence" : ""}`}>
       {blocks.map((block, blockIndex) => {
         if (block.type === "callout") {
           return (
             <div
               key={`callout-${blockIndex}`}
-              className={`formatted-callout formatted-callout-${block.tone} ${revealClass}`}
+              className={`formatted-callout formatted-callout-${block.tone} ${
+                isCalloutSequence ? "is-sequence-item" : ""
+              } ${revealClass}`}
               style={animated ? { animationDelay: `${80 + blockIndex * 55}ms` } : undefined}
             >
               <span className="formatted-callout-label">{block.label}</span>

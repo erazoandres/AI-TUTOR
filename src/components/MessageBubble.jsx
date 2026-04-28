@@ -19,19 +19,23 @@ export default function MessageBubble({
       style={{ animationDelay: `${Math.min(index * 40, 180)}ms` }}
     >
       <div
-        className={`max-w-[96%] sm:max-w-[92%] lg:max-w-[84%] xl:max-w-[78%] ${isUser ? "order-2 lg:max-w-[70%]" : ""}`}
+        className={
+          isUser
+            ? "order-2 max-w-[94%] sm:max-w-[82%] lg:max-w-[68%]"
+            : "w-full max-w-full"
+        }
       >
         {!isUser && (
-          <div className="animate-pop-in mb-2 inline-flex items-center gap-2 rounded-full px-3 py-1.5 text-[11px] font-bold ios-chip">
+          <div className="animate-pop-in mb-2 inline-flex items-center gap-2 rounded-full px-2.5 py-1.5 text-[10px] font-bold ios-chip sm:px-3 sm:text-[11px]">
             <Sparkles className="h-3.5 w-3.5" aria-hidden="true" />
             TutorIA
           </div>
         )}
         <div
-          className={`break-words whitespace-pre-wrap px-3.5 py-3 text-sm leading-6 shadow-sm ${
+          className={`break-words whitespace-pre-wrap px-3 py-2.5 text-sm leading-6 shadow-sm sm:px-3.5 sm:py-3 ${
             isUser
               ? "primary-action rounded-2xl rounded-br-md text-white"
-              : `ios-surface rounded-2xl rounded-bl-md text-[color:var(--text-primary)] ${
+              : `assistant-message-card ios-surface rounded-2xl rounded-bl-md text-[color:var(--text-primary)] ${
                   isLatestAssistant ? "assistant-message-reveal" : ""
                 }`
           }`}
@@ -40,18 +44,23 @@ export default function MessageBubble({
         </div>
 
         {!isUser && actions.length > 0 && (
-          <div className="mt-3 flex flex-wrap gap-2">
-            {actions.map((action) => (
-              <button
-                key={action.label}
-                type="button"
-                onClick={() => onAction?.(action.prompt)}
-                className="ios-surface-muted control-button rounded-full px-3 py-2 text-xs font-bold transition"
-              >
-                {action.label}
-              </button>
-            ))}
-          </div>
+            <div className="assistant-actions mt-3">
+              {actions.map((action) => (
+                <button
+                  key={action.label}
+                  type="button"
+                  onClick={() =>
+                    onAction?.({
+                      userFacingContent: action.userFacingContent || action.label,
+                      requestContent: action.requestContent,
+                    })
+                  }
+                  className="ios-surface-muted control-button rounded-full px-3 py-2 text-xs font-bold transition"
+                >
+                  {action.label}
+                </button>
+              ))}
+            </div>
         )}
       </div>
     </div>

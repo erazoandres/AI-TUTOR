@@ -1,3 +1,5 @@
+import { extractTurnPrompt } from "./chatTurnContext";
+
 const MODE_GUIDES = {
   easy: "Vamos paso a paso, con una sola idea a la vez y un ejemplo muy claro.",
   medium: "Vamos a mantener claridad, pero conectando idea, ejemplo y una razon breve.",
@@ -34,6 +36,13 @@ function getLastUserMessage(messages) {
     ?.content?.trim();
 }
 
+function getLastAssistantMessage(messages) {
+  return [...messages]
+    .reverse()
+    .find((message) => message.role === "assistant" && typeof message.content === "string")
+    ?.content?.trim();
+}
+
 function getFocusLabel(topic, fallback) {
   return topic?.trim() || fallback;
 }
@@ -54,6 +63,8 @@ export function buildLocalTutorReply({
   studentProfile,
 }) {
   const lastQuestion = getLastUserMessage(messages);
+  const lastAssistantMessage = getLastAssistantMessage(messages);
+  const lastTurnPrompt = extractTurnPrompt(lastAssistantMessage || "");
   const focus = getFocusLabel(topic, lastQuestion || subject);
   const subjectKey = normalizeKey(subject);
   const { gradeLabel, modeName } = getProfileLabels(studentProfile, grade, mode);
@@ -61,6 +72,15 @@ export function buildLocalTutorReply({
   const example =
     SUBJECT_EXAMPLES[subjectKey] ||
     "Primero identifica la idea central, luego piensa en un ejemplo cercano y por ultimo explicala con tus palabras.";
+
+  if (lastTurnPrompt && lastQuestion) {
+    return [
+      `Idea clave: Vamos a revisar tu respuesta sobre ${focus} sin salirnos de la misma pregunta.`,
+      `Ejemplo: Tu respuesta fue "${lastQuestion}". Si esta bien encaminada, la afinamos; si no, la corregimos con calma.`,
+      `Recuerda: ${modeGuide}`,
+      `Tu turno: Explicame por que elegiste esa respuesta o pide una pista mas concreta.`,
+    ].join("\n\n");
+  }
 
   return [
     `Idea clave: Para ${gradeLabel}, ${focus} en ${subject} se entiende mejor si tomas una idea por vez.`,
