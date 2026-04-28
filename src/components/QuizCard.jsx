@@ -21,7 +21,7 @@ export default function QuizCard({ pregunta, numero, onAnswer }) {
   return (
     <article className="ios-surface rounded-lg px-3 py-3">
       <div className="mb-2 inline-flex items-center gap-2 rounded-full px-2.5 py-1 text-[11px] font-semibold ios-chip">
-        <BadgeHelp className="h-3.5 w-3.5" />
+        <BadgeHelp className="h-3.5 w-3.5" aria-hidden="true" />
         Pregunta {numero}
       </div>
 
@@ -52,7 +52,13 @@ export default function QuizCard({ pregunta, numero, onAnswer }) {
           }
 
           return (
-            <button key={i} type="button" className={style} onClick={() => handleSubmit(opcion)}>
+            <button
+              key={i}
+              type="button"
+              aria-pressed={isSelected}
+              className={style}
+              onClick={() => handleSubmit(opcion)}
+            >
               {opcion}
             </button>
           );

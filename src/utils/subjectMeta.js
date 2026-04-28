@@ -1,0 +1,69 @@
+export const SUBJECT_META = {
+  matematicas: {
+    categoryLabel: "Ciencias",
+    summary: "Patrones, operaciones y pensamiento logico",
+    activeBg: "from-sky-500/18 via-sky-500/10 to-transparent",
+    activeRing: "ring-sky-300/60 dark:ring-sky-400/30",
+    badge: "bg-sky-500/12 text-sky-700 dark:text-sky-200",
+    bubble: "bg-sky-500/14 text-sky-700 dark:text-sky-200",
+    bar: "bg-sky-500",
+  },
+  fisica: {
+    categoryLabel: "Ciencias",
+    summary: "Movimiento, energia y fenomenos",
+    activeBg: "from-amber-500/18 via-amber-500/10 to-transparent",
+    activeRing: "ring-amber-300/60 dark:ring-amber-400/30",
+    badge: "bg-amber-500/14 text-amber-700 dark:text-amber-200",
+    bubble: "bg-amber-500/16 text-amber-700 dark:text-amber-200",
+    bar: "bg-amber-500",
+  },
+  quimica: {
+    categoryLabel: "Ciencias",
+    summary: "Materia, cambios y experimentos",
+    activeBg: "from-emerald-500/18 via-emerald-500/10 to-transparent",
+    activeRing: "ring-emerald-300/60 dark:ring-emerald-400/30",
+    badge: "bg-emerald-500/14 text-emerald-700 dark:text-emerald-200",
+    bubble: "bg-emerald-500/16 text-emerald-700 dark:text-emerald-200",
+    bar: "bg-emerald-500",
+  },
+  biologia: {
+    categoryLabel: "Ciencias",
+    summary: "Vida, cuerpo y naturaleza",
+    activeBg: "from-pink-500/18 via-pink-500/10 to-transparent",
+    activeRing: "ring-pink-300/60 dark:ring-pink-400/30",
+    badge: "bg-pink-500/14 text-pink-700 dark:text-pink-200",
+    bubble: "bg-pink-500/16 text-pink-700 dark:text-pink-200",
+    bar: "bg-pink-500",
+  },
+  historia: {
+    categoryLabel: "Humanas",
+    summary: "Procesos, epocas y contexto",
+    activeBg: "from-violet-500/18 via-violet-500/10 to-transparent",
+    activeRing: "ring-violet-300/60 dark:ring-violet-400/30",
+    badge: "bg-violet-500/14 text-violet-700 dark:text-violet-200",
+    bubble: "bg-violet-500/16 text-violet-700 dark:text-violet-200",
+    bar: "bg-violet-500",
+  },
+  lengua: {
+    categoryLabel: "Humanas",
+    summary: "Lectura, escritura y expresion",
+    activeBg: "from-rose-500/18 via-rose-500/10 to-transparent",
+    activeRing: "ring-rose-300/60 dark:ring-rose-400/30",
+    badge: "bg-rose-500/14 text-rose-700 dark:text-rose-200",
+    bubble: "bg-rose-500/16 text-rose-700 dark:text-rose-200",
+    bar: "bg-rose-500",
+  },
+  programacion: {
+    categoryLabel: "Tech",
+    summary: "Logica, web y algoritmos",
+    activeBg: "from-cyan-500/18 via-cyan-500/10 to-transparent",
+    activeRing: "ring-cyan-300/60 dark:ring-cyan-400/30",
+    badge: "bg-cyan-500/14 text-cyan-700 dark:text-cyan-200",
+    bubble: "bg-cyan-500/16 text-cyan-700 dark:text-cyan-200",
+    bar: "bg-cyan-500",
+  },
+};
+
+export function getSubjectMeta(subjectId) {
+  return SUBJECT_META[subjectId] || SUBJECT_META.matematicas;
+}

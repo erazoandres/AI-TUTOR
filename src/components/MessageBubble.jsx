@@ -18,12 +18,12 @@ export default function MessageBubble({
       <div className={`max-w-[96%] sm:max-w-[88%] ${isUser ? "order-2" : ""}`}>
         {!isUser && (
           <div className="animate-pop-in mb-2 inline-flex items-center gap-2 rounded-full px-2.5 py-1 text-[11px] font-semibold ios-chip">
-            <Sparkles className="h-3.5 w-3.5" />
+            <Sparkles className="h-3.5 w-3.5" aria-hidden="true" />
             TutorIA
           </div>
         )}
         <div
-          className={`whitespace-pre-wrap px-3.5 py-3 text-sm leading-6 shadow-sm ${
+          className={`break-words whitespace-pre-wrap px-3.5 py-3 text-sm leading-6 shadow-sm ${
             isUser
               ? "rounded-[22px] rounded-br-md bg-[color:var(--accent)] text-white"
               : "ios-surface rounded-[22px] rounded-bl-md text-[color:var(--text-primary)]"
